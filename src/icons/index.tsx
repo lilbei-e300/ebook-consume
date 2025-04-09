@@ -32,11 +32,8 @@ import LockIcon from "./lock.svg";
 import EnvelopeIcon from "./envelope.svg";
 import UserIcon from "./user-line.svg";
 import CalenderIcon from "./calender-line.svg";
-import EyeIcon from "./eye.svg";
-import EyeCloseIcon from "./eye-close.svg";
 import TimeIcon from "./time.svg";
 import CopyIcon from "./copy.svg";
-import ChevronLeftIcon from "./chevron-left.svg";
 import UserCircleIcon from "./user-circle.svg";
 import TaskIcon from "./task-icon.svg";
 import ListIcon from "./list.svg";
@@ -51,6 +48,15 @@ import HorizontaLDots from "./horizontal-dots.svg";
 import ChatIcon from "./chat.svg";
 import MoreDotIcon from "./more-dot.svg";
 import BellIcon from "./bell.svg";
+import MenuIcon from "./menu.svg";
+import XIcon from "./x.svg";
+import ChevronLeftIcon from "./chevron-left.svg";
+import EyeIcon from "./eye.svg";
+import EyeCloseIcon from "./eye-close.svg";
+import ShoppingBagIcon from "./shopping-bag.svg";
+import TruckIcon from "./truck.svg";
+import CogIcon from "./cog.svg";
+import SupportIcon from "./support.svg";
 
 export {
   DownloadIcon,
@@ -88,11 +94,8 @@ export {
   LockIcon,
   UserIcon,
   CalenderIcon,
-  EyeIcon,
-  EyeCloseIcon,
   TimeIcon,
   CopyIcon,
-  ChevronLeftIcon,
   UserCircleIcon,
   ListIcon,
   TableIcon,
@@ -106,4 +109,13 @@ export {
   HorizontaLDots,
   ChevronUpIcon,
   ChatIcon,
+  ShoppingBagIcon,
+  TruckIcon,
+  CogIcon,
+  MenuIcon,
+  XIcon,
+  ChevronLeftIcon,
+  EyeIcon,
+  EyeCloseIcon,
+  SupportIcon,
 };

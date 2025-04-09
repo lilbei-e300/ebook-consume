@@ -597,3 +597,19 @@ layer(base);
   opacity: 0.8;
   cursor: grabbing; /* Changes the cursor to indicate dragging */
 }
+
+/* User status styles */
+.status-active {
+  color: #52c41a;
+  font-weight: 500;
+}
+
+.status-locked {
+  color: #ff4d4f;
+  font-weight: 500;
+}
+
+.status-pending {
+  color: #faad14;
+  font-weight: 500;
+}

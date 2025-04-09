@@ -1,21 +1,23 @@
 "use client";
-import React, { useEffect, useRef, useState,useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
+import { useAuth } from "@/context/AuthContext";
 import {
-  BoxCubeIcon,
-  CalenderIcon,
-  ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
+  UserIcon,
+  ShoppingBagIcon,
+  TruckIcon,
+  FileIcon,
+  ChevronDownIcon,
   ListIcon,
-  PageIcon,
   PieChartIcon,
-  PlugInIcon,
-  TableIcon,
+  ChatIcon,
   UserCircleIcon,
+  SupportIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
 
@@ -26,77 +28,136 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-const navItems: NavItem[] = [
+// Menu cho admin
+const adminNavItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    name: "Tổng quan",
+    path: "/dashboard",
   },
   {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
+    icon: <UserIcon />,
+    name: "Quản lý người dùng",
+    path: "/admin/users",
   },
   {
-    icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
-  },
-
-  {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
+    icon: <TruckIcon />,
+    name: "Quản lý đơn vị vận chuyển",
+    path: "/transporters",
   },
   {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+    icon: <SupportIcon />,
+    name: "Hỗ trợ người dùng",
+    path: "/support",
   },
   {
-    name: "Pages",
-    icon: <PageIcon />,
-    subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
-    ],
+    icon: <ShoppingBagIcon />,
+    name: "Quản lý sản phẩm",
+    path: "/products-management",
+  },
+  {
+    icon: <PieChartIcon />,
+    name: "Theo dõi hệ thống",
+    path: "/system-monitoring",
   },
 ];
 
-const othersItems: NavItem[] = [
+// Menu cho farmer
+const farmerNavItems: NavItem[] = [
+  {
+    icon: <GridIcon />,
+    name: "Tổng quan",
+    path: "/dashboard",
+  },
+  {
+    icon: <ShoppingBagIcon />,
+    name: "Quản lý sản phẩm",
+    path: "/my-products",
+  },
+  {
+    icon: <FileIcon />,
+    name: "Đăng bán sản phẩm",
+    path: "/add-product",
+  },
+  {
+    icon: <ListIcon />,
+    name: "Theo dõi đơn hàng",
+    path: "/my-orders",
+  },
   {
     icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/line-chart", pro: false },
-      { name: "Bar Chart", path: "/bar-chart", pro: false },
-    ],
+    name: "Phân tích thị trường",
+    path: "/market-analysis",
   },
   {
-    icon: <BoxCubeIcon />,
-    name: "UI Elements",
-    subItems: [
-      { name: "Alerts", path: "/alerts", pro: false },
-      { name: "Avatar", path: "/avatars", pro: false },
-      { name: "Badge", path: "/badge", pro: false },
-      { name: "Buttons", path: "/buttons", pro: false },
-      { name: "Images", path: "/images", pro: false },
-      { name: "Videos", path: "/videos", pro: false },
-    ],
+    icon: <ChatIcon />,
+    name: "Tương tác với khách hàng",
+    path: "/customer-interaction",
   },
   {
-    icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
-    ],
+    icon: <UserCircleIcon />,
+    name: "Quản lý thông tin cá nhân",
+    path: "/profile",
+  },
+];
+
+// Menu cho transporter
+const transporterNavItems: NavItem[] = [
+  {
+    icon: <GridIcon />,
+    name: "Tổng quan",
+    path: "/dashboard",
+  },
+  {
+    icon: <TruckIcon />,
+    name: "Cập nhật trạng thái giao hàng",
+    path: "/update-delivery-status",
+  },
+  {
+    icon: <FileIcon />,
+    name: "Nhận thông tin đơn hàng",
+    path: "/order-information",
+  },
+];
+
+// Menu khác
+const othersItems: NavItem[] = [
+  {
+    icon: <SupportIcon />,
+    name: "Hỗ trợ",
+    path: "/support",
+  },
+  {
+    icon: <ListIcon />,
+    name: "Hướng dẫn",
+    path: "/guide",
   },
 ];
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const { user } = useAuth();
+  const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null);
+  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Xác định menu dựa trên role
+  const getNavItems = () => {
+    if (!user) return [];
+    
+    switch (user.role) {
+      case 'admin':
+        return adminNavItems;
+      case 'farmer':
+        return farmerNavItems;
+      case 'transporter':
+        return transporterNavItems;
+      default:
+        return [];
+    }
+  };
+
+  const navItems = getNavItems();
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -109,7 +170,7 @@ const AppSidebar: React.FC = () => {
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
               className={`menu-item group  ${
-                openSubmenu?.type === menuType && openSubmenu?.index === index
+                activeSubmenu === index && menuType === "main"
                   ? "menu-item-active"
                   : "menu-item-inactive"
               } cursor-pointer ${
@@ -120,7 +181,7 @@ const AppSidebar: React.FC = () => {
             >
               <span
                 className={` ${
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
+                  activeSubmenu === index && menuType === "main"
                     ? "menu-item-icon-active"
                     : "menu-item-icon-inactive"
                 }`}
@@ -133,8 +194,7 @@ const AppSidebar: React.FC = () => {
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
                   className={`ml-auto w-5 h-5 transition-transform duration-200  ${
-                    openSubmenu?.type === menuType &&
-                    openSubmenu?.index === index
+                    activeSubmenu === index && menuType === "main"
                       ? "rotate-180 text-brand-500"
                       : ""
                   }`}
@@ -166,13 +226,10 @@ const AppSidebar: React.FC = () => {
           )}
           {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
             <div
-              ref={(el) => {
-                subMenuRefs.current[`${menuType}-${index}`] = el;
-              }}
               className="overflow-hidden transition-all duration-300"
               style={{
                 height:
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
+                  activeSubmenu === index && menuType === "main"
                     ? `${subMenuHeight[`${menuType}-${index}`]}px`
                     : "0px",
               }}
@@ -231,7 +288,6 @@ const AppSidebar: React.FC = () => {
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
     {}
   );
-  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // const isActive = (path: string) => path === pathname;
    const isActive = useCallback((path: string) => path === pathname, [pathname]);
@@ -276,16 +332,14 @@ const AppSidebar: React.FC = () => {
   }, [openSubmenu]);
 
   const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
-    setOpenSubmenu((prevOpenSubmenu) => {
-      if (
-        prevOpenSubmenu &&
-        prevOpenSubmenu.type === menuType &&
-        prevOpenSubmenu.index === index
-      ) {
-        return null;
-      }
-      return { type: menuType, index };
-    });
+    const key = `${menuType}-${index}`;
+    setActiveSubmenu(activeSubmenu === index ? null : index);
+    if (subMenuRefs.current[key]) {
+      setSubMenuHeight((prevHeights) => ({
+        ...prevHeights,
+        [key]: subMenuRefs.current[key]?.scrollHeight || 0,
+      }));
+    }
   };
 
   return (
