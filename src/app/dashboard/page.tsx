@@ -3,10 +3,28 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+interface Activity {
+  id: number;
+  action: string;
+  time: string;
+}
+
+interface DashboardData {
+  recentActivities: Activity[];
+  totalUsers?: number;
+  totalProducts?: number;
+  totalOrders?: number;
+  activeOrders?: number;
+  totalRevenue?: number;
+  totalDeliveries?: number;
+  completedDeliveries?: number;
+  pendingDeliveries?: number;
+}
+
 export default function DashboardPage() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
-  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -131,7 +149,7 @@ export default function DashboardPage() {
             </div>
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">Tổng doanh thu</h3>
-              <p className="text-3xl font-bold text-brand-500">{dashboardData.totalRevenue.toLocaleString('vi-VN')} đ</p>
+              <p className="text-3xl font-bold text-brand-500">{dashboardData.totalRevenue?.toLocaleString('vi-VN') || '0'} đ</p>
             </div>
           </div>
         );
@@ -170,7 +188,7 @@ export default function DashboardPage() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Hoạt động gần đây</h2>
         <div className="space-y-4">
-          {dashboardData?.recentActivities.map((activity: any) => (
+          {dashboardData?.recentActivities.map((activity: Activity) => (
             <div key={activity.id} className="flex items-start p-4 border-b border-gray-200 dark:border-gray-700 last:border-0">
               <div className="flex-1">
                 <p className="text-gray-800 dark:text-gray-200">{activity.action}</p>

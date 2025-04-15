@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { ChevronLeftIcon } from "@/icons";
+import Image from 'next/image';
 
 interface CartItem {
   id: string;
@@ -125,7 +126,13 @@ export default function CartPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
-                            <img className="h-10 w-10 rounded-full object-cover" src={item.image} alt={item.name} />
+                            <Image 
+                              src={item.image} 
+                              alt={item.name} 
+                              width={100} 
+                              height={100}
+                              className="object-cover"
+                            />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 dark:text-white">

@@ -1,115 +1,134 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import userService, { UserSearchParams } from '@/services/admin/userService';
-import { Button, Input, Select, Table, Modal, Form, message } from 'antd';
-import { SearchOutlined, EditOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
-import type { TablePaginationConfig } from 'antd/es/table';
-import type { FilterValue, SorterResult } from 'antd/es/table/interface';
+import { useEffect, useState, useCallback } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { userService } from '@/services/userService';
+import { Table, Input, Select, Button, Space, Tag, message } from 'antd';
+import { SearchOutlined, ReloadOutlined, EyeOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import UserDetailModal from '@/components/admin/users/UserDetailModal';
+import UserStatusModal from '@/components/admin/users/UserStatusModal';
+import { User, UserSearchParams, UserSearchResponse } from '@/types/user';
 
-const { Option } = Select;
+const { Search } = Input;
 
-interface User {
-  id: number;
-  fullName: string;
-  email: string;
-  phone: string;
-  role: string;
-  status: string;
-  address: string;
-}
-
-const UserManagement = () => {
+export default function UserManagement() {
+  const { token } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
+  const [total, setTotal] = useState(0);
   const [searchParams, setSearchParams] = useState<UserSearchParams>({
     page: 0,
     size: 10,
     sortBy: 'createdAt',
     sortDirection: 'desc'
   });
-  const [total, setTotal] = useState(0);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [form] = Form.useForm();
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
+  const [statusAction, setStatusAction] = useState<'lock' | 'unlock'>('lock');
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
+    if (!token) return;
+    
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await userService.searchUsers(searchParams);
-      setUsers(response.data.content);
-      setTotal(response.data.totalElements);
-    } catch (err) {
+      const response = await userService.searchUsers(searchParams, token);
+      if (response.code === 200) {
+        const filteredUsers = response.data.users.filter(user => user.role !== 'admin');
+        setUsers(filteredUsers);
+        setTotal(filteredUsers.length);
+      } else {
+        message.error(response.message || 'Có lỗi xảy ra');
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
       message.error('Có lỗi xảy ra khi tải danh sách người dùng');
-      console.error('Error fetching users:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, searchParams]);
 
   useEffect(() => {
     fetchUsers();
-  }, [searchParams]);
+  }, [fetchUsers]);
 
-  const handleSearch = (values: Partial<UserSearchParams>) => {
+  const handleSearch = (value: string) => {
     setSearchParams(prev => ({
       ...prev,
-      ...values,
+      keyword: value,
       page: 0
     }));
   };
 
-  const handleTableChange = (
-    pagination: TablePaginationConfig,
-    filters: Record<string, FilterValue | null>,
-    sorter: SorterResult<User> | SorterResult<User>[]
-  ) => {
+  const handleRoleChange = (value: string) => {
     setSearchParams(prev => ({
       ...prev,
-      page: (pagination.current || 1) - 1,
-      size: pagination.pageSize || 10,
-      sortBy: Array.isArray(sorter) ? sorter[0]?.field as string : sorter.field as string,
-      sortDirection: Array.isArray(sorter) 
-        ? (sorter[0]?.order === 'descend' ? 'desc' : 'asc')
-        : (sorter.order === 'descend' ? 'desc' : 'asc')
+      role: value,
+      page: 0
     }));
   };
 
-  const handleStatusChange = async (userId: number, newStatus: string) => {
+  const handleStatusChange = (value: string) => {
+    setSearchParams(prev => ({
+      ...prev,
+      status: value,
+      page: 0
+    }));
+  };
+
+  const handleTableChange = (pagination: any) => {
+    setSearchParams(prev => ({
+      ...prev,
+      page: pagination.current - 1,
+      size: pagination.pageSize
+    }));
+  };
+
+  const handleViewDetail = (user: User) => {
+    setSelectedUser(user);
+    setIsDetailModalVisible(true);
+  };
+
+  const handleUpdateStatus = async (userId: number, status: string, reason: string) => {
+    if (!token) return;
+
     try {
-      await userService.updateUserStatus({
+      const response = await userService.updateUserStatus({
         userId,
-        status: newStatus as 'active' | 'locked' | 'pending',
-        reason: newStatus === 'active' ? 'Tài khoản đã được kích hoạt' : 'Tài khoản đã bị khóa'
-      });
-      message.success('Cập nhật trạng thái thành công');
-      fetchUsers();
-    } catch (err) {
-      message.error('Có lỗi xảy ra khi cập nhật trạng thái');
-      console.error('Error updating user status:', err);
+        status: status as 'active' | 'locked' | 'pending',
+        reason
+      }, token);
+
+      if (response.code === 200) {
+        message.success(`Đã ${status === 'locked' ? 'khóa' : 'mở khóa'} tài khoản thành công`);
+        fetchUsers();
+      } else {
+        message.error(response.message || 'Có lỗi xảy ra');
+      }
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      message.error('Có lỗi xảy ra khi cập nhật trạng thái người dùng');
     }
   };
 
-  const handleEdit = (user: User) => {
-    setSelectedUser(user);
-    form.setFieldsValue(user);
-    setIsModalVisible(true);
-  };
+  const handleUpdateInfo = async (user: User, formData: any) => {
+    if (!token) return;
 
-  const handleUpdateInfo = async (values: Omit<User, 'id' | 'role' | 'status'>) => {
-    if (!selectedUser) return;
-    
     try {
-      await userService.updateUserInfo({
-        userId: selectedUser.id,
-        ...values
-      });
-      message.success('Cập nhật thông tin thành công');
-      setIsModalVisible(false);
-      fetchUsers();
-    } catch (err) {
-      message.error('Có lỗi xảy ra khi cập nhật thông tin');
-      console.error('Error updating user info:', err);
+      const response = await userService.updateUserInfo({
+        userId: user.id,
+        ...formData
+      }, token);
+
+      if (response.code === 200) {
+        message.success('Cập nhật thông tin thành công');
+        fetchUsers();
+      } else {
+        message.error(response.message || 'Có lỗi xảy ra');
+      }
+    } catch (error) {
+      console.error('Error updating user info:', error);
+      message.error('Có lỗi xảy ra khi cập nhật thông tin người dùng');
     }
   };
 
@@ -118,6 +137,12 @@ const UserManagement = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
+      width: 80,
+    },
+    {
+      title: 'Tên đăng nhập',
+      dataIndex: 'username',
+      key: 'username',
     },
     {
       title: 'Họ tên',
@@ -138,87 +163,105 @@ const UserManagement = () => {
       title: 'Vai trò',
       dataIndex: 'role',
       key: 'role',
+      render: (role: string) => {
+        const color = role === 'admin' ? 'red' : 
+                     role === 'farmer' ? 'green' : 
+                     role === 'transporter' ? 'blue' : 'default';
+        return <Tag color={color}>{role}</Tag>;
+      }
     },
     {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => (
-        <span className={`status-${status.toLowerCase()}`}>
-          {status === 'active' ? 'Hoạt động' : status === 'locked' ? 'Đã khóa' : 'Chờ duyệt'}
-        </span>
-      ),
+      render: (status: string) => {
+        const color = status === 'active' ? 'success' : 
+                     status === 'pending' ? 'warning' : 'error';
+        return <Tag color={color}>{status}</Tag>;
+      }
+    },
+    {
+      title: 'Ngày tạo',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (date: string) => new Date(date).toLocaleDateString('vi-VN')
     },
     {
       title: 'Thao tác',
       key: 'action',
-      render: (_: unknown, record: User) => (
-        <div className="space-x-2">
+      render: (_, record: User) => (
+        <Space size="middle">
           <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            Sửa
-          </Button>
+            icon={<EyeOutlined />}
+            onClick={() => handleViewDetail(record)}
+          />
           {record.status === 'active' ? (
-            <Button
-              danger
+            <Button 
               icon={<LockOutlined />}
-              onClick={() => handleStatusChange(record.id, 'locked')}
-            >
-              Khóa
-            </Button>
-          ) : (
-            <Button
-              type="primary"
+              danger
+              onClick={() => {
+                setSelectedUser(record);
+                setStatusAction('lock');
+                setIsStatusModalVisible(true);
+              }}
+            />
+          ) : record.status === 'locked' ? (
+            <Button 
               icon={<UnlockOutlined />}
-              onClick={() => handleStatusChange(record.id, 'active')}
-            >
-              Mở khóa
-            </Button>
-          )}
-        </div>
+              onClick={() => {
+                setSelectedUser(record);
+                setStatusAction('unlock');
+                setIsStatusModalVisible(true);
+              }}
+            />
+          ) : null}
+        </Space>
       ),
     },
   ];
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Quản lý người dùng</h1>
-      
-      <Form
-        layout="inline"
-        onFinish={handleSearch}
-        className="mb-6"
-      >
-        <Form.Item name="keyword">
-          <Input
-            placeholder="Tìm kiếm theo tên, email..."
-            prefix={<SearchOutlined />}
-            className="w-64"
-          />
-        </Form.Item>
-        <Form.Item name="role">
-          <Select placeholder="Vai trò" className="w-32">
-            <Option value="farmer">Nông dân</Option>
-            <Option value="consumer">Người tiêu dùng</Option>
-            <Option value="transporter">Người vận chuyển</Option>
-          </Select>
-        </Form.Item>
-        <Form.Item name="status">
-          <Select placeholder="Trạng thái" className="w-32">
-            <Option value="active">Hoạt động</Option>
-            <Option value="locked">Đã khóa</Option>
-            <Option value="pending">Chờ duyệt</Option>
-          </Select>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Tìm kiếm
-          </Button>
-        </Form.Item>
-      </Form>
+      <div className="mb-4 flex gap-4">
+        <Search
+          placeholder="Tìm kiếm người dùng"
+          onSearch={handleSearch}
+          style={{ width: 300 }}
+        />
+        <Select
+          placeholder="Vai trò"
+          style={{ width: 120 }}
+          onChange={handleRoleChange}
+          allowClear
+        >
+          <Select.Option value="farmer">Nông dân</Select.Option>
+          <Select.Option value="transporter">Vận chuyển</Select.Option>
+          <Select.Option value="consumer">Người dùng</Select.Option>
+        </Select>
+        <Select
+          placeholder="Trạng thái"
+          style={{ width: 120 }}
+          onChange={handleStatusChange}
+          allowClear
+        >
+          <Select.Option value="active">Hoạt động</Select.Option>
+          <Select.Option value="locked">Đã khóa</Select.Option>
+          <Select.Option value="pending">Chờ duyệt</Select.Option>
+        </Select>
+        <Button 
+          icon={<ReloadOutlined />}
+          onClick={() => {
+            setSearchParams({
+              page: 0,
+              size: 10,
+              sortBy: 'createdAt',
+              sortDirection: 'desc'
+            });
+          }}
+        >
+          Làm mới
+        </Button>
+      </div>
 
       <Table
         columns={columns}
@@ -227,64 +270,34 @@ const UserManagement = () => {
         loading={loading}
         pagination={{
           total,
-          current: searchParams.page! + 1,
           pageSize: searchParams.size,
+          current: searchParams.page + 1,
           showSizeChanger: true,
+          showTotal: (total) => `Tổng số ${total} người dùng`
         }}
         onChange={handleTableChange}
+        scroll={{ x: 1200 }}
       />
 
-      <Modal
-        title="Cập nhật thông tin người dùng"
-        open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        footer={null}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleUpdateInfo}
-        >
-          <Form.Item
-            name="fullName"
-            label="Họ tên"
-            rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[
-              { required: true, message: 'Vui lòng nhập email' },
-              { type: 'email', message: 'Email không hợp lệ' }
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="phone"
-            label="Số điện thoại"
-            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="address"
-            label="Địa chỉ"
-            rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}
-          >
-            <Input.TextArea />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Cập nhật
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
+      <UserDetailModal
+        user={selectedUser}
+        visible={isDetailModalVisible}
+        onClose={() => setIsDetailModalVisible(false)}
+        onUpdateStatus={(user, status) => {
+          setSelectedUser(user);
+          setStatusAction(status === 'locked' ? 'lock' : 'unlock');
+          setIsStatusModalVisible(true);
+        }}
+        onUpdateInfo={handleUpdateInfo}
+      />
+
+      <UserStatusModal
+        user={selectedUser}
+        visible={isStatusModalVisible}
+        onClose={() => setIsStatusModalVisible(false)}
+        onConfirm={handleUpdateStatus}
+        action={statusAction}
+      />
     </div>
   );
-};
-
-export default UserManagement; 
+} 

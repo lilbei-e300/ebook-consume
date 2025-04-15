@@ -23,6 +23,7 @@ interface AuthContextType {
   }) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,16 +31,31 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Khởi tạo state từ localStorage
   useEffect(() => {
-    // Kiểm tra token trong localStorage khi component mount
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
+    const initializeAuth = () => {
+      try {
+        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('user');
+        
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        // Nếu có lỗi khi đọc localStorage, xóa dữ liệu không hợp lệ
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -65,15 +81,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.code === 200 && data.data) {
         const { token, user } = data.data;
         
-        // Lưu thông tin đăng nhập
-        setToken(token);
-        setUser(user);
+        // Lưu thông tin đăng nhập vào localStorage trước khi cập nhật state
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
+        
+        // Cập nhật state
+        setToken(token);
+        setUser(user);
 
         // Điều hướng dựa trên role
         const redirectPath = getRedirectPath(user.role);
-        console.log('Redirecting to:', redirectPath); // Debug log
         router.push(redirectPath);
       } else {
         throw new Error(data.message || 'Đăng nhập thất bại');
@@ -88,7 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const getRedirectPath = (role: string): string => {
     switch (role) {
       case 'admin':
+        return '/dashboard';
       case 'farmer':
+        return '/dashboard';
       case 'transporter':
         return '/dashboard';
       case 'consumer':
@@ -100,17 +119,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Thêm useEffect để kiểm tra và điều hướng khi user thay đổi
   useEffect(() => {
-    if (user) {
+    if (user && !isLoading) {
       const currentPath = window.location.pathname;
       const redirectPath = getRedirectPath(user.role);
       
-      // Chỉ chuyển hướng nếu đang không ở đúng path
-      if (currentPath !== redirectPath) {
-        console.log('User changed, redirecting to:', redirectPath);
+      // Chỉ chuyển hướng nếu đang ở trang login hoặc trang không tồn tại
+      if (currentPath === '/login' || currentPath === '/') {
         router.push(redirectPath);
       }
     }
-  }, [user, router]);
+  }, [user, router, isLoading]);
 
   const register = async (data: {
     username: string;
@@ -148,8 +166,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token }),
+            'Authorization': `Bearer ${token}`
+          }
         });
 
         if (!response.ok) {
@@ -159,18 +177,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Xóa token và user khỏi state và localStorage
-      setToken(null);
-      setUser(null);
+      // Xóa dữ liệu khỏi localStorage trước khi cập nhật state
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      
+      // Cập nhật state
+      setToken(null);
+      setUser(null);
+      
       // Chuyển về trang login
       router.push('/login');
     }
   };
 
+  const value = {
+    user,
+    token,
+    login,
+    register,
+    logout,
+    isAuthenticated: !!token,
+    isLoading
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

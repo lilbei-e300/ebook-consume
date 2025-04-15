@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "@/context/AuthContext";
@@ -41,6 +40,11 @@ const adminNavItems: NavItem[] = [
     path: "/admin/users",
   },
   {
+    icon: <ShoppingBagIcon />,
+    name: "Quản lý sản phẩm",
+    path: "/admin/products",
+  },
+  {
     icon: <TruckIcon />,
     name: "Quản lý đơn vị vận chuyển",
     path: "/transporters",
@@ -48,17 +52,12 @@ const adminNavItems: NavItem[] = [
   {
     icon: <SupportIcon />,
     name: "Hỗ trợ người dùng",
-    path: "/support",
-  },
-  {
-    icon: <ShoppingBagIcon />,
-    name: "Quản lý sản phẩm",
-    path: "/products-management",
+    path: "/admin/support",
   },
   {
     icon: <PieChartIcon />,
     name: "Theo dõi hệ thống",
-    path: "/system-monitoring",
+    path: "/admin/system-monitoring",
   },
 ];
 
@@ -364,29 +363,13 @@ const AppSidebar: React.FC = () => {
       >
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <>
-              <Image
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-              <Image
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-            </>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              Ebook Consume
+            </span>
           ) : (
-            <Image
-              src="/images/logo/logo-icon.svg"
-              alt="Logo"
-              width={32}
-              height={32}
-            />
+            <span className="text-xl font-bold text-gray-900 dark:text-white">
+              EC
+            </span>
           )}
         </Link>
       </div>

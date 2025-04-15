@@ -8,32 +8,42 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-      // Redirect to appropriate dashboard based on role
-      switch (user.role) {
-        case 'admin':
-          router.push('/admin/dashboard');
-          break;
-        case 'farmer':
-          router.push('/farmer/dashboard');
-          break;
-        case 'consumer':
-          router.push('/');
-          break;
-        case 'transporter':
-          router.push('/transporter/dashboard');
-          break;
-        default:
-          router.push('/');
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        router.push('/login');
+      } else if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+        const redirectPath = getRoleDashboard(user.role);
+        router.push(redirectPath);
       }
     }
-  }, [isAuthenticated, user, router, allowedRoles]);
+  }, [isAuthenticated, user, router, allowedRoles, isLoading]);
+
+  const getRoleDashboard = (role: string): string => {
+    switch (role) {
+      case 'admin':
+        return '/admin/dashboard';
+      case 'farmer':
+        return '/farmer/dashboard';
+      case 'transporter':
+        return '/transporter/dashboard';
+      case 'consumer':
+        return '/';
+      default:
+        return '/';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-500"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated || (allowedRoles && user && !allowedRoles.includes(user.role))) {
     return null;
