@@ -47,7 +47,7 @@ const adminNavItems: NavItem[] = [
   {
     icon: <TruckIcon />,
     name: "Quản lý đơn vị vận chuyển",
-    path: "/transporters",
+    path: "/admin/transporters",
   },
   {
     icon: <SupportIcon />,
@@ -66,37 +66,37 @@ const farmerNavItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Tổng quan",
-    path: "/dashboard",
+    path: "/farmer/dashboard",
   },
   {
     icon: <ShoppingBagIcon />,
     name: "Quản lý sản phẩm",
-    path: "/my-products",
+    path: "/farmer/my-products",
   },
   {
     icon: <FileIcon />,
     name: "Đăng bán sản phẩm",
-    path: "/add-product",
+    path: "/farmer/add-product",
   },
   {
     icon: <ListIcon />,
     name: "Theo dõi đơn hàng",
-    path: "/my-orders",
+    path: "/farmer/my-orders",
   },
   {
     icon: <PieChartIcon />,
     name: "Phân tích thị trường",
-    path: "/market-analysis",
+    path: "/farmer/market-analysis",
   },
   {
     icon: <ChatIcon />,
     name: "Tương tác với khách hàng",
-    path: "/customer-interaction",
+    path: "/farmer/customer-interaction",
   },
   {
     icon: <UserCircleIcon />,
     name: "Quản lý thông tin cá nhân",
-    path: "/profile",
+    path: "/farmer/profile",
   },
 ];
 
@@ -105,17 +105,17 @@ const transporterNavItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Tổng quan",
-    path: "/dashboard",
+    path: "/transporter/dashboard",
   },
   {
     icon: <TruckIcon />,
     name: "Cập nhật trạng thái giao hàng",
-    path: "/update-delivery-status",
+    path: "/transporter/update-delivery-status",
   },
   {
     icon: <FileIcon />,
     name: "Nhận thông tin đơn hàng",
-    path: "/order-information",
+    path: "/transporter/order-information",
   },
 ];
 

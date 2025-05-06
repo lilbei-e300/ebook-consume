@@ -5,9 +5,9 @@ import Image from "next/image";
 export default function HeroSection() {
   return (
     <div className="relative bg-white dark:bg-gray-900 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        <div className="relative z-10 pb-8 bg-white dark:bg-gray-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-          <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 pb-8 bg-white dark:bg-gray-900 sm:pb-16 md:pb-20 lg:pb-28 xl:pb-32">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div className="sm:text-center lg:text-left">
               <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
                 <span className="block">Chào mừng đến với</span>
@@ -36,17 +36,17 @@ export default function HeroSection() {
                 </div>
               </div>
             </div>
-          </main>
+            <div className="relative h-56 sm:h-72 md:h-96 lg:h-[500px]">
+              <Image
+                className="object-cover rounded-lg"
+                src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&h=800&fit=crop"
+                alt="Nông sản tươi ngon"
+                fill
+                priority
+              />
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-        <Image
-          className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-          src="https://picsum.photos/seed/hero/1200/800"
-          alt="Nông sản tươi ngon"
-          width={1200}
-          height={800}
-        />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { authService } from '@/services/authService';
 
 interface User {
   id: string;
@@ -162,17 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       if (token) {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          console.error('Logout failed');
-        }
+        await authService.logout(token);
       }
     } catch (error) {
       console.error('Logout error:', error);

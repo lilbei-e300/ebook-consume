@@ -10,9 +10,10 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
   const router = useRouter();
-  const [cartCount, setCartCount] = useState(0); // Số lượng sản phẩm trong giỏ hàng
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +30,6 @@ export default function Navbar() {
     };
   }, []);
 
-  // Lấy số lượng sản phẩm trong giỏ hàng từ localStorage
   useEffect(() => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     setCartCount(cart.length);
@@ -39,7 +39,14 @@ export default function Navbar() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Hàm kiểm tra xem một đường dẫn có đang active hay không
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery("");
+    }
+  };
+
   const isActive = (path: string) => {
     if (path === '/') {
       return pathname === path;
@@ -47,7 +54,6 @@ export default function Navbar() {
     return pathname.startsWith(path);
   };
 
-  // Xử lý khi nhấn vào giỏ hàng khi chưa đăng nhập
   const handleCartClick = (e: React.MouseEvent) => {
     if (!isAuthenticated) {
       e.preventDefault();
@@ -109,7 +115,39 @@ export default function Navbar() {
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            {/* Icon giỏ hàng - hiển thị cho tất cả người dùng */}
+            {/* Tìm kiếm */}
+            <form onSubmit={handleSearch} className="flex items-center mr-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm kiếm sản phẩm..."
+                  className="w-48 pl-3 pr-10 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {/* Icon giỏ hàng */}
             <Link 
               href={isAuthenticated ? "/cart" : "/login"} 
               onClick={handleCartClick}
@@ -128,7 +166,6 @@ export default function Navbar() {
             
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                {/* Hiển thị ConsumerUserDropdown cho người dùng consumer */}
                 {user?.role === 'consumer' ? (
                   <ConsumerUserDropdown />
                 ) : (
@@ -222,7 +259,6 @@ export default function Navbar() {
             >
               Liên hệ
             </Link>
-            {/* Giỏ hàng trong menu mobile */}
             <Link
               href={isAuthenticated ? "/cart" : "/login"}
               onClick={handleCartClick}

@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    domains: ['picsum.photos'],
+    domains: ['picsum.photos', 'images.unsplash.com', 'example.com'],
   },
   async rewrites() {
     return [
