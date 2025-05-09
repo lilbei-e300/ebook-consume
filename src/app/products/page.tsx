@@ -1,7 +1,5 @@
 "use client";
 import { useState } from "react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import ProductHero from "@/components/products/ProductHero";
 import ProductFilters from "@/components/products/ProductFilters";
 import ProductGrid from "@/components/products/ProductGrid";
@@ -34,7 +32,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+
       <main className="flex-grow">
         <ProductHero />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -66,7 +64,7 @@ export default function ProductsPage() {
           </div>
         </div>
       </main>
-      <Footer />
+
     </div>
   );
 } 

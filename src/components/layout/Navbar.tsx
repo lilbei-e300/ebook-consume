@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { MenuIcon, XIcon } from "@/icons/ui";
 import { usePathname, useRouter } from "next/navigation";
 import ConsumerUserDropdown from "@/components/header/ConsumerUserDropdown";
+import { cartService } from "@/services/cartService";
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -31,9 +32,31 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    setCartCount(cart.length);
-  }, []);
+    const fetchCartCount = async () => {
+      if (isAuthenticated) {
+        try {
+          const cart = await cartService.getCart();
+          setCartCount(cart.totalItems);
+        } catch (error) {
+          console.error('Lỗi khi lấy số lượng giỏ hàng:', error);
+          setCartCount(0);
+        }
+      }
+    };
+
+    fetchCartCount();
+
+    // Thêm event listener để lắng nghe sự kiện cập nhật giỏ hàng
+    const handleCartUpdate = () => {
+      fetchCartCount();
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, [isAuthenticated]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
