@@ -68,6 +68,27 @@ export interface ProductDetail {
   available: boolean;
 }
 
+export interface ProductSearchResponse {
+  products: Product[];
+  totalProducts: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+  suggestedCategories: string[];
+}
+
+export interface ProductSearchParams {
+  keyword?: string;
+  category?: string;
+  origin?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  page?: number;
+  size?: number;
+}
+
 export const productService = {
   getSuggestedProducts: async (limit: number = 10): Promise<Product[]> => {
     try {
@@ -80,12 +101,46 @@ export const productService = {
       return [];
     }
   },
-  getProductDetail: async (productId: number): Promise<ProductDetail> => {
-    const response = await fetch(`${API_URL}/products/${productId}`);
-    if (!response.ok) {
-      throw new Error('Không thể lấy thông tin sản phẩm');
+  searchProducts: async (params: ProductSearchParams): Promise<ProductSearchResponse> => {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      if (params.keyword) queryParams.append('keyword', params.keyword);
+      if (params.category) queryParams.append('category', params.category);
+      if (params.origin) queryParams.append('origin', params.origin);
+      if (params.minPrice) queryParams.append('minPrice', params.minPrice.toString());
+      if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice.toString());
+      if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+      if (params.sortDirection) queryParams.append('sortDirection', params.sortDirection);
+      if (params.page !== undefined) queryParams.append('page', params.page.toString());
+      if (params.size) queryParams.append('size', params.size.toString());
+
+      const response = await fetch(`${API_URL}/products/search?${queryParams.toString()}`);
+      const data = await response.json();
+
+      if (data.code !== 200) {
+        throw new Error(data.message || 'Có lỗi xảy ra khi tìm kiếm sản phẩm');
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error('Error searching products:', error);
+      throw error;
     }
-    const data = await response.json();
-    return data.data;
+  },
+  getProductDetail: async (id: number): Promise<Product> => {
+    try {
+      const response = await fetch(`${API_URL}/products/${id}`);
+      const data = await response.json();
+
+      if (data.code !== 200) {
+        throw new Error(data.message || 'Có lỗi xảy ra khi lấy thông tin sản phẩm');
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error('Error getting product detail:', error);
+      throw error;
+    }
   }
 }; 

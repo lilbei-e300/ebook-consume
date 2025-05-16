@@ -1,16 +1,55 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ProductHero from "@/components/products/ProductHero";
 import ProductFilters from "@/components/products/ProductFilters";
 import ProductGrid from "@/components/products/ProductGrid";
 import ProductCategories from "@/components/products/ProductCategories";
 import ProductPagination from "@/components/products/ProductPagination";
+import { productService, ProductSearchParams, ProductSearchResponse } from "@/services/productService";
+import { toast } from "react-hot-toast";
 
 export default function ProductsPage() {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("newest");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("newest");
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000000 });
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [searchResponse, setSearchResponse] = useState<ProductSearchResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params: ProductSearchParams = {
+        page: currentPage - 1,
+        size: 12,
+        category: selectedCategory !== "all" ? selectedCategory : undefined,
+        minPrice: priceRange.min,
+        maxPrice: priceRange.max,
+        sortBy: sortBy === "newest" ? "createdAt" : 
+               sortBy === "price-asc" ? "price" : 
+               sortBy === "price-desc" ? "price" : 
+               sortBy === "name-asc" ? "name" : 
+               sortBy === "name-desc" ? "name" : "createdAt",
+        sortDirection: sortBy === "price-asc" || sortBy === "name-asc" ? "asc" : "desc"
+      };
+
+      const response = await productService.searchProducts(params);
+      setSearchResponse(response);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Có lỗi xảy ra khi tải danh sách sản phẩm');
+      toast.error('Có lỗi xảy ra khi tải danh sách sản phẩm');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [selectedCategory, sortBy, priceRange, currentPage]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
@@ -32,7 +71,6 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-
       <main className="flex-grow">
         <ProductHero />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -40,7 +78,8 @@ export default function ProductsPage() {
             <div className="lg:w-1/4">
               <ProductCategories 
                 selectedCategory={selectedCategory} 
-                onCategoryChange={handleCategoryChange} 
+                onCategoryChange={handleCategoryChange}
+                categories={searchResponse?.suggestedCategories || []}
               />
               <ProductFilters 
                 sortBy={sortBy}
@@ -51,20 +90,21 @@ export default function ProductsPage() {
             </div>
             <div className="lg:w-3/4">
               <ProductGrid 
-                category={selectedCategory}
-                sortBy={sortBy}
-                priceRange={priceRange}
-                currentPage={currentPage}
+                products={searchResponse?.products || []}
+                loading={loading}
               />
-              <ProductPagination 
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-              />
+              {searchResponse && (
+                <ProductPagination 
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                  totalItems={searchResponse.totalProducts}
+                  itemsPerPage={searchResponse.pageSize}
+                />
+              )}
             </div>
           </div>
         </div>
       </main>
-
     </div>
   );
 } 

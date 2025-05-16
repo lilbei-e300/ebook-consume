@@ -14,7 +14,6 @@ import {
   ChevronDownIcon,
   ListIcon,
   PieChartIcon,
-  ChatIcon,
   UserCircleIcon,
   SupportIcon,
 } from "../icons/index";
@@ -32,7 +31,7 @@ const adminNavItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Tổng quan",
-    path: "/dashboard",
+    path: "/admin/dashboard",
   },
   {
     icon: <UserIcon />,
@@ -43,16 +42,6 @@ const adminNavItems: NavItem[] = [
     icon: <ShoppingBagIcon />,
     name: "Quản lý sản phẩm",
     path: "/admin/products",
-  },
-  {
-    icon: <TruckIcon />,
-    name: "Quản lý đơn vị vận chuyển",
-    path: "/admin/transporters",
-  },
-  {
-    icon: <SupportIcon />,
-    name: "Hỗ trợ người dùng",
-    path: "/admin/support",
   },
   {
     icon: <PieChartIcon />,
@@ -87,11 +76,6 @@ const farmerNavItems: NavItem[] = [
     icon: <PieChartIcon />,
     name: "Phân tích thị trường",
     path: "/farmer/market-analysis",
-  },
-  {
-    icon: <ChatIcon />,
-    name: "Tương tác với khách hàng",
-    path: "/farmer/customer-interaction",
   },
   {
     icon: <UserCircleIcon />,

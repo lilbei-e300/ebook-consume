@@ -3,16 +3,15 @@
 export default function ContactMap() {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-      <div className="aspect-w-16 aspect-h-9">
+      <div className="h-[500px]">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4241674197956!2d106.69877!3d10.775844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f4b8c19e7c3%3A0xef77cd47a1cc691e!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBCw6FjaCBraG9hIC0gxJDhuqFpIGjhu41jIFF14buRYyBnaWEgVFAuSENN!5e0!3m2!1svi!2s!4v1647887654321!5m2!1svi!2s"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.8168145559957!2d105.73938337584153!3d21.040014487390803!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135096b31fa7abb%3A0xff645782804911af!2zVHLGsOG7nW5nIMSR4bqhaSBo4buNYyBDw7RuZyBuZ2jhu4cgxJDDtG5nIMOB!5e0!3m2!1svi!2s!4v1747046376900!5m2!1svi!2s"
           width="100%"
           height="100%"
           style={{ border: 0 }}
           allowFullScreen
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          className="w-full h-full"
         ></iframe>
       </div>
       <div className="p-6">
@@ -20,11 +19,11 @@ export default function ContactMap() {
           Vị trí của chúng tôi
         </h3>
         <p className="text-gray-500 dark:text-gray-300">
-          123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh
+          Trịnh Văn Bô, Nam Từ Liêm, Hà Nội
         </p>
         <div className="mt-4">
           <a
-            href="https://goo.gl/maps/your-map-link"
+            href="https://maps.app.goo.gl/LaQ9pEUczdjJMwtE8"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"

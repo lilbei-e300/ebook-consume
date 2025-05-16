@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Tabs } from 'antd';
-import { Button } from 'antd';
-import { DownloadOutlined, LineChartOutlined, ShoppingCartOutlined, UserOutlined, CloudServerOutlined, DashboardOutlined } from '@ant-design/icons';
+import { LineChartOutlined, ShoppingCartOutlined, UserOutlined, CloudServerOutlined, DashboardOutlined } from '@ant-design/icons';
 import SalesReport from '../../../components/admin/system-monitoring/SalesReport';
 import OrderReport from '../../../components/admin/system-monitoring/OrderReport';
 import MarketTrends from '../../../components/admin/system-monitoring/MarketTrends';
@@ -85,32 +84,6 @@ const SystemMonitoringPage = () => {
             <div className="flex items-center gap-3">
               <DashboardOutlined className="text-2xl text-brand-500" />
               <h1 className="text-2xl font-bold text-gray-800">Theo dõi hệ thống</h1>
-            </div>
-            <div className="flex gap-3">
-              <Button 
-                type="primary" 
-                icon={<DownloadOutlined />} 
-                onClick={() => window.open('/api/v1/admin/monitoring/export/sales?format=pdf', '_blank')}
-                className=""
-              >
-                Xuất báo cáo doanh số
-              </Button>
-              <Button 
-                type="primary" 
-                icon={<DownloadOutlined />} 
-                onClick={() => window.open('/api/v1/admin/monitoring/export/orders?format=excel', '_blank')}
-                className=""
-              >
-                Xuất báo cáo đơn hàng
-              </Button>
-              <Button 
-                type="primary" 
-                icon={<DownloadOutlined />} 
-                onClick={() => window.open('/api/v1/admin/monitoring/export/market-trends?format=pdf', '_blank')}
-                className=""
-              >
-                Xuất báo cáo thị trường
-              </Button>
             </div>
           </div>
         </div>

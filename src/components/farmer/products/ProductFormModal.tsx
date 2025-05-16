@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, Select, Upload, message } from 'antd';
+import { Modal, Form, Input, InputNumber, Select, Upload } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { RcFile, UploadFile as AntUploadFile } from 'antd/es/upload/interface';
 import { useAuth } from '@/context/AuthContext';
 import { farmerProductService } from '@/services/farmer/farmerProductService';
 import { FarmerProduct, CreateFarmerProductRequest, UpdateFarmerProductRequest } from '@/types/farmerProduct';
+import { toast } from 'react-hot-toast';
 
 interface ProductFormModalProps {
   mode: 'create' | 'edit';
@@ -34,7 +35,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -80,7 +81,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
       if (mode === 'create') {
         createdProduct = await farmerProductService.createProduct(productData, token);
-        message.success('Thêm sản phẩm thành công');
+        toast.success('Thêm sản phẩm thành công');
         
         if (createdProduct && fileList.length > 0) {
           const filesToUpload = fileList
@@ -89,7 +90,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
           
           if (filesToUpload.length > 0) {
             await farmerProductService.uploadImages(createdProduct.id, filesToUpload, token);
-            message.success('Upload ảnh thành công');
+            toast.success('Upload ảnh thành công');
           }
         }
       } else if (product) {
@@ -98,7 +99,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
           id: product.id
         };
         await farmerProductService.updateProduct(product.id, updateData, token);
-        message.success('Cập nhật sản phẩm thành công');
+        toast.success('Cập nhật sản phẩm thành công');
         
         const newFiles = fileList
           .filter(file => file.originFileObj)
@@ -106,7 +107,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         
         if (newFiles.length > 0) {
           await farmerProductService.uploadImages(product.id, newFiles, token);
-          message.success('Upload ảnh thành công');
+          toast.success('Upload ảnh thành công');
         }
       }
 
@@ -114,7 +115,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Error:', error);
-      message.error(mode === 'create' ? 'Lỗi khi thêm sản phẩm' : 'Lỗi khi cập nhật sản phẩm');
+      toast.error(mode === 'create' ? 'Lỗi khi thêm sản phẩm' : 'Lỗi khi cập nhật sản phẩm');
     } finally {
       setLoading(false);
     }
@@ -137,7 +138,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
       return false;
     } catch (error) {
       console.error('Error:', error);
-      message.error('Lỗi khi tải lên hình ảnh');
+      toast.error('Lỗi khi tải lên hình ảnh');
       return false;
     }
   };
@@ -168,6 +169,14 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
+        initialValues={{
+          name: '',
+          description: '',
+          price: 0,
+          stock: 0,
+          category: '',
+          originInfo: '',
+        }}
       >
         <Form.Item
           name="name"

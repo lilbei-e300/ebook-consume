@@ -8,6 +8,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
+interface ProductTrackInfo {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  originInfo: string;
+  productionProcess: string | null;
+  certification: string | null;
+  images: string[];
+  farmerName: string;
+  farmName: string;
+  farmAddress: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
@@ -15,6 +31,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
+  const [showTrackModal, setShowTrackModal] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [trackInfo, setTrackInfo] = useState<ProductTrackInfo | null>(null);
   const { id } = use(params);
 
   useEffect(() => {
@@ -53,6 +72,28 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     } catch (error) {
       console.error('Lỗi khi hủy đơn hàng:', error);
       toast.error('Không thể hủy đơn hàng');
+    }
+  };
+
+  const handleTrackProduct = async (productId: number) => {
+    setShowTrackModal(true);
+    try {
+      // Lấy QR code
+      const qrResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/consumer/products/${productId}/qr-code`);
+      const qrData = await qrResponse.json();
+      if (qrData.code === 200) {
+        setQrCode(qrData.data);
+      }
+
+      // Lấy thông tin truy xuất
+      const trackResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/consumer/products/track/${productId}`);
+      const trackData = await trackResponse.json();
+      if (trackData.code === 200) {
+        setTrackInfo(trackData.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin truy xuất:', error);
+      toast.error('Không thể lấy thông tin truy xuất');
     }
   };
 
@@ -225,6 +266,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Đơn giá: {item.price.toLocaleString('vi-VN')}đ
                     </p>
+                    <button
+                      onClick={() => handleTrackProduct(item.productId)}
+                      className="mt-2 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      Truy xuất nguồn gốc
+                    </button>
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold text-gray-900 dark:text-white">
@@ -301,6 +348,100 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
               >
                 Xác nhận hủy
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal truy xuất nguồn gốc */}
+      {showTrackModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-2xl w-full mx-4">
+            <div className="flex justify-between items-start mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Truy xuất nguồn gốc sản phẩm
+              </h2>
+              <button
+                onClick={() => {
+                  setShowTrackModal(false);
+                  setQrCode(null);
+                  setTrackInfo(null);
+                }}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* QR Code */}
+              <div className="flex flex-col items-center">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                  Mã QR truy xuất
+                </h3>
+                {qrCode ? (
+                  <Image
+                    src={`data:image/png;base64,${qrCode}`}
+                    alt="QR Code"
+                    width={200}
+                    height={200}
+                    className="rounded-lg"
+                  />
+                ) : (
+                  <div className="w-48 h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+                )}
+              </div>
+
+              {/* Thông tin truy xuất */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                  Thông tin sản phẩm
+                </h3>
+                {trackInfo ? (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Tên sản phẩm</p>
+                      <p className="text-gray-900 dark:text-white">{trackInfo.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Mô tả</p>
+                      <p className="text-gray-900 dark:text-white">{trackInfo.description}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Thông tin xuất xứ</p>
+                      <p className="text-gray-900 dark:text-white">{trackInfo.originInfo}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Quy trình sản xuất</p>
+                      <p className="text-gray-900 dark:text-white">{trackInfo.productionProcess || 'Chưa có thông tin'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Chứng nhận</p>
+                      <p className="text-gray-900 dark:text-white">{trackInfo.certification || 'Chưa có thông tin'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Nông dân</p>
+                      <p className="text-gray-900 dark:text-white">{trackInfo.farmerName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Trang trại</p>
+                      <p className="text-gray-900 dark:text-white">{trackInfo.farmName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Địa chỉ trang trại</p>
+                      <p className="text-gray-900 dark:text-white">{trackInfo.farmAddress}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

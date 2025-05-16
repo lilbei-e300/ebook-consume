@@ -122,17 +122,17 @@ export default function Footer() {
               <ul role="list" className="mt-6 space-y-4">
                 <li>
                   <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
-                    <strong>Địa chỉ:</strong> 123 Đường ABC, Quận XYZ, TP.HCM
+                    <strong>Địa chỉ:</strong> Trịnh Văn Bô, Nam Từ Liêm, Hà Nội
                   </p>
                 </li>
                 <li>
                   <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
-                    <strong>Email:</strong> support@ebookconsume.com
+                    <strong>Email:</strong> tienanhtch@gmail.com
                   </p>
                 </li>
                 <li>
                   <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
-                    <strong>Hotline:</strong> 1900 1234 (8h-22h)
+                    <strong>Hotline:</strong> 0355372733
                   </p>
                 </li>
               </ul>

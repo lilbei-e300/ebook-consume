@@ -40,6 +40,22 @@ export default function UserDropdown() {
     );
   }
 
+  // Lấy đường dẫn profile dựa trên role
+  const getProfilePath = () => {
+    switch (user.role) {
+      case 'admin':
+        return '/admin/profile';
+      case 'farmer':
+        return '/farmer/profile';
+      case 'transporter':
+        return '/transporter/profile';
+      case 'consumer':
+        return '/profile';
+      default:
+        return '/profile';
+    }
+  };
+
   return (
     <div className="relative">
       <button
@@ -50,7 +66,7 @@ export default function UserDropdown() {
           <Image
             width={44}
             height={44}
-            src="/images/user/user-04.jpg"
+            src="/images/user/user.jpg"
             alt="User"
           />
         </span>
@@ -99,7 +115,7 @@ export default function UserDropdown() {
             <DropdownItem
               onItemClick={closeDropdown}
               tag="a"
-              href="/profile"
+              href={getProfilePath()}
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <svg
@@ -124,7 +140,7 @@ export default function UserDropdown() {
             <DropdownItem
               onItemClick={closeDropdown}
               tag="a"
-              href="/profile"
+              href={`${getProfilePath()}/change-password`}
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <svg

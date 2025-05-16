@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from '@/context/AuthContext';
 import ToastProvider from "@/components/ToastProvider";
+import ChatButton from "@/components/chat/ChatButton";
 
 const outfit = Outfit({
   variable: "--font-outfit-sans",
@@ -24,7 +25,10 @@ export default function RootLayout({
         <AuthProvider>
           <ToastProvider />
           <ThemeProvider>
-            <SidebarProvider>{children}</SidebarProvider>
+            <SidebarProvider>
+              {children}
+              <ChatButton />
+            </SidebarProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

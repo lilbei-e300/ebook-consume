@@ -35,7 +35,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Khởi tạo state từ localStorage
+  // Hàm kiểm tra token hết hạn
+  const checkTokenExpiration = () => {
+    const storedToken = localStorage.getItem('token');
+    const tokenExpiration = localStorage.getItem('tokenExpiration');
+    
+    if (storedToken && tokenExpiration) {
+      const expirationTime = parseInt(tokenExpiration);
+      const currentTime = Date.now();
+      
+      if (currentTime >= expirationTime) {
+        // Token đã hết hạn, đăng xuất
+        logout();
+      }
+    }
+  };
+
+  // Khởi tạo state từ localStorage và kiểm tra token hết hạn
   useEffect(() => {
     const initializeAuth = () => {
       try {
@@ -51,12 +67,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Nếu có lỗi khi đọc localStorage, xóa dữ liệu không hợp lệ
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('tokenExpiration');
       } finally {
         setIsLoading(false);
       }
     };
 
     initializeAuth();
+  }, []);
+
+  // Kiểm tra token hết hạn mỗi phút
+  useEffect(() => {
+    const interval = setInterval(checkTokenExpiration, 60000); // 60000ms = 1 phút
+    return () => clearInterval(interval);
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -80,11 +103,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.code === 200 && data.data) {
-        const { token, user } = data.data;
+        const { token, user, expiresIn } = data.data;
         
-        // Lưu thông tin đăng nhập vào localStorage trước khi cập nhật state
+        // Tính thời gian hết hạn của token
+        const expirationTime = Date.now() + (expiresIn * 1000); // Chuyển đổi giây thành milliseconds
+        
+        // Lưu thông tin đăng nhập vào localStorage
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('tokenExpiration', expirationTime.toString());
         
         // Cập nhật state
         setToken(token);
@@ -106,11 +133,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const getRedirectPath = (role: string): string => {
     switch (role) {
       case 'admin':
-        return '/dashboard';
+        return '/admin/dashboard';
       case 'farmer':
-        return '/dashboard';
+        return '/farmer/dashboard';
       case 'transporter':
-        return '/dashboard';
+        return '/transporter/dashboard';
       case 'consumer':
         return '/';
       default:
@@ -165,18 +192,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token) {
         await authService.logout(token);
       }
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      // Xóa dữ liệu khỏi localStorage trước khi cập nhật state
+      
+      // Xóa dữ liệu khỏi localStorage
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('tokenExpiration');
       
       // Cập nhật state
       setToken(null);
       setUser(null);
       
       // Chuyển về trang login
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Ngay cả khi có lỗi, vẫn xóa dữ liệu và chuyển về trang login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('tokenExpiration');
+      setToken(null);
+      setUser(null);
       router.push('/login');
     }
   };

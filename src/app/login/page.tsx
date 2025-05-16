@@ -2,18 +2,15 @@
 
 import SignInForm from '@/components/auth/SignInForm';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function Login() {
   const [error, setError] = useState('');
   const { login } = useAuth();
-  const router = useRouter();
 
   const handleLogin = async (username: string, password: string) => {
     try {
       await login(username, password);
-      router.push('/');
     } catch (error) {
       console.error('Login error:', error);
       setError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Input, Select, Space, message } from 'antd';
+import { Table, Button, Input, Select, Space } from 'antd';
 import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
 import { farmerProductService } from '@/services/farmer/farmerProductService';
 import { FarmerProduct, FarmerProductSearchParams } from '@/types/farmerProduct';
 import ProductDetailModal from './ProductDetailModal';
 import ProductFormModal from './ProductFormModal';
+import { toast } from 'react-hot-toast';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -38,7 +39,7 @@ const ProductList: React.FC = () => {
       setTotal(response.data.totalElements);
     } catch (error: unknown) {
       console.error('Error fetching products:', error);
-      message.error('Lỗi khi tải danh sách sản phẩm');
+      toast.error('Lỗi khi tải danh sách sản phẩm');
     } finally {
       setLoading(false);
     }
@@ -79,11 +80,11 @@ const ProductList: React.FC = () => {
     
     try {
       await farmerProductService.deleteProduct(id, token);
-      message.success('Xóa sản phẩm thành công');
+      toast.success('Xóa sản phẩm thành công');
       fetchProducts();
     } catch (error: unknown) {
       console.error('Error deleting product:', error);
-      message.error('Lỗi khi xóa sản phẩm');
+      toast.error('Lỗi khi xóa sản phẩm');
     }
   };
 
@@ -211,12 +212,15 @@ const ProductList: React.FC = () => {
         }}
       />
 
+      {isDetailModalVisible && (
       <ProductDetailModal
         product={selectedProduct}
         visible={isDetailModalVisible}
         onClose={() => setIsDetailModalVisible(false)}
       />
+      )}
 
+      {isFormModalVisible && (
       <ProductFormModal
         mode={formMode}
         product={selectedProduct}
@@ -224,6 +228,7 @@ const ProductList: React.FC = () => {
         onClose={() => setIsFormModalVisible(false)}
         onSuccess={fetchProducts}
       />
+      )}
     </div>
   );
 };
