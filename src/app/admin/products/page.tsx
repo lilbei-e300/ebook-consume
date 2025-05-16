@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { adminProductService } from '@/services/admin/productService';
 import { Product, ProductSearchRequest, ProductSearchResponse } from '@/types/product';
-import { Table, Button, Input, Select, Modal, Form, message, Tag, Space } from 'antd';
+import { Table, Button, Input, Select, Modal, Form, message, Tag, Space, TablePaginationConfig } from 'antd';
 import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import ProductDetailModal from '@/components/admin/products/ProductDetailModal';
 import ProductReviewModal from '@/components/admin/products/ProductReviewModal';
@@ -34,8 +34,8 @@ const AdminProductsPage = () => {
       const data = response.data as ProductSearchResponse;
       setProducts(data.products);
       setTotal(data.totalElements);
-    } catch (error) {
-      message.error('Có lỗi xảy ra khi tải danh sách sản phẩm');
+    } catch (error: unknown) {
+      message.error(`Có lỗi xảy ra khi tải danh sách sản phẩm: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -61,11 +61,11 @@ const AdminProductsPage = () => {
     }));
   };
 
-  const handleTableChange = (pagination: any) => {
+  const handleTableChange = (pagination: TablePaginationConfig) => {
     setSearchParams(prev => ({
       ...prev,
-      page: pagination.current - 1,
-      size: pagination.pageSize
+      page: (pagination.current || 1) - 1,
+      size: pagination.pageSize || 10
     }));
   };
 
@@ -78,8 +78,8 @@ const AdminProductsPage = () => {
       setIsDeleteModalVisible(false);
       setDeleteReason('');
       fetchProducts();
-    } catch (error) {
-      message.error('Có lỗi xảy ra khi xóa sản phẩm');
+    } catch (error: unknown) {
+      message.error(`Có lỗi xảy ra khi xóa sản phẩm: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -143,7 +143,7 @@ const AdminProductsPage = () => {
     {
       title: 'Thao tác',
       key: 'action',
-      fixed: 'right',
+      fixed: 'right' as const,
       width: 200,
       render: (text: string, record: Product) => (
         <Space>
@@ -250,7 +250,7 @@ const AdminProductsPage = () => {
             cancelText="Hủy"
             okButtonProps={{ danger: true }}
           >
-            <p>Bạn có chắc chắn muốn xóa sản phẩm "{selectedProduct.name}" không?</p>
+            <p>Bạn có chắc chắn muốn xóa sản phẩm &quot;{selectedProduct.name}&quot; không?</p>
             <Form layout="vertical">
               <Form.Item
                 label="Lý do xóa"
