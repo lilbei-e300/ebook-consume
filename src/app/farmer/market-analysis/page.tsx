@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, Row, Col, Statistic, Table, Tabs, Button, DatePicker, Select, Space, message } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
 import { farmerMarketAnalysisService, MarketOverview, MarketTrends, RevenueAnalysis } from '@/services/farmer/farmerMarketAnalysisService';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency } from '@/utils/format';
 import { Line, Bar } from '@ant-design/plots';
 import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
-const { TabPane } = Tabs;
 
 const MarketAnalysisPage = () => {
   const { token } = useAuth();
@@ -24,7 +23,7 @@ const MarketAnalysisPage = () => {
   ]);
   const [period, setPeriod] = useState<string>('month');
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!token) return;
     
     try {
@@ -44,11 +43,11 @@ const MarketAnalysisPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchData();
-  }, [token]);
+  }, [fetchData]);
 
   const handleExportReport = async () => {
     if (!token) return;

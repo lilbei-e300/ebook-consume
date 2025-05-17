@@ -71,7 +71,7 @@ export const cartService = {
 
       const data = await response.json();
       return data.data;
-    } catch (error) {
+    } catch {
       // Trả về giỏ hàng rỗng nếu có lỗi
       return {
         id: 0,

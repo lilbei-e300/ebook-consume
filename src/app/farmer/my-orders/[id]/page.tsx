@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, Descriptions, Table, Tag, Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -16,7 +16,7 @@ const OrderDetailPage = () => {
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<FarmerOrder | null>(null);
 
-  const fetchOrderDetail = async () => {
+  const fetchOrderDetail = useCallback(async () => {
     if (!token || !id) return;
     
     try {
@@ -29,11 +29,11 @@ const OrderDetailPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, id]);
 
   useEffect(() => {
     fetchOrderDetail();
-  }, [token, id]);
+  }, [fetchOrderDetail]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -134,17 +134,6 @@ const OrderDetailPage = () => {
             pagination={false}
           />
         </div>
-
-        {order.transportUpdates.length > 0 && (
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4">Cập nhật vận chuyển</h3>
-            <Table
-              dataSource={order.transportUpdates}
-              rowKey="id"
-              pagination={false}
-            />
-          </div>
-        )}
       </Card>
     </div>
   );

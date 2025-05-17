@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { productSellService, Product } from '@/services/farmer/productSellService';
 import { Button, Input, Select, Table, Tag, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
@@ -13,43 +13,35 @@ const SellingProductList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
   const [sellStatus, setSellStatus] = useState<'approved' | 'rejected'>('approved');
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 0,
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await productSellService.getSellingProducts({
         keyword,
         sellStatus,
-        page: pagination.current - 1,
-        size: pagination.pageSize,
+        page: currentPage - 1,
+        size: pageSize,
       });
       setProducts(response.products);
-      setPagination({
-        ...pagination,
-        total: response.totalElements,
-      });
+      setTotal(response.totalElements);
     } catch {
       message.error('Lỗi khi tải danh sách sản phẩm');
     } finally {
       setLoading(false);
     }
-  };
+  }, [keyword, sellStatus, currentPage, pageSize]);
 
   useEffect(() => {
     fetchProducts();
-  }, [keyword, sellStatus, pagination.current, pagination.pageSize]);
+  }, [fetchProducts]);
 
   const handleTableChange = (newPagination: TablePaginationConfig) => {
-    setPagination({
-      ...pagination,
-      current: newPagination.current || 1,
-      pageSize: newPagination.pageSize || 10,
-    });
+    setCurrentPage(newPagination.current || 1);
+    setPageSize(newPagination.pageSize || 10);
   };
 
   const handleUpdateStatus = async (productId: number, newStatus: 'draft' | 'approved' | 'rejected') => {
@@ -153,7 +145,11 @@ const SellingProductList: React.FC = () => {
         dataSource={products}
         rowKey="id"
         loading={loading}
-        pagination={pagination}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: total,
+        }}
         onChange={handleTableChange}
       />
     </div>

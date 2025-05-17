@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Table, Tag, Select, Button, Space, Modal, Form, Input, message } from 'antd';
 import { supportService, SupportTicket } from '@/services/admin/supportService';
 import { formatDate } from '@/lib/date';
@@ -19,7 +19,7 @@ const SupportTicketList: React.FC = () => {
   const [replyModalVisible, setReplyModalVisible] = useState(false);
   const [replyForm] = Form.useForm();
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     try {
       setLoading(true);
       const response = await supportService.getSupportTickets(currentPage - 1, pageSize, status, type);
@@ -30,11 +30,11 @@ const SupportTicketList: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, status, type]);
 
   useEffect(() => {
     fetchTickets();
-  }, [currentPage, pageSize, status, type]);
+  }, [fetchTickets]);
 
   const handleStatusChange = async (ticketId: string, newStatus: string) => {
     try {

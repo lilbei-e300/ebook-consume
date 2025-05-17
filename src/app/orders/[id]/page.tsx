@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { orderService, Order } from '@/services/orderService';
@@ -36,16 +36,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const [trackInfo, setTrackInfo] = useState<ProductTrackInfo | null>(null);
   const { id } = use(params);
 
-  useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      router.push('/login');
-      return;
-    }
-
-    fetchOrderDetail();
-  }, [isAuthenticated, isLoading, id]);
-
-  const fetchOrderDetail = async () => {
+  const fetchOrderDetail = useCallback(async () => {
     try {
       const data = await orderService.getOrderDetail(parseInt(id));
       setOrder(data);
@@ -55,7 +46,16 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      router.push('/login');
+      return;
+    }
+
+    fetchOrderDetail();
+  }, [isAuthenticated, isLoading, fetchOrderDetail, router]);
 
   const handleCancelOrder = async () => {
     if (!order || !cancelReason.trim()) {

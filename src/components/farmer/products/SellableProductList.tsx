@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { productSellService, Product } from '@/services/farmer/productSellService';
 import { Button, Input, Select, Table, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
@@ -18,43 +18,35 @@ const SellableProductList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
   const [category, setCategory] = useState<string | undefined>(undefined);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 0,
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await productSellService.getSellableProducts({
         keyword,
         category,
-        page: pagination.current - 1,
-        size: pagination.pageSize,
+        page: currentPage - 1,
+        size: pageSize,
       });
       setProducts(response.products);
-      setPagination({
-        ...pagination,
-        total: response.totalItems,
-      });
+      setTotal(response.totalItems);
     } catch {
       message.error('Lỗi khi tải danh sách sản phẩm');
     } finally {
       setLoading(false);
     }
-  };
+  }, [keyword, category, currentPage, pageSize]);
 
   useEffect(() => {
     fetchProducts();
-  }, [keyword, category, pagination.current, pagination.pageSize]);
+  }, [fetchProducts]);
 
   const handleTableChange = (newPagination: TablePaginationConfig) => {
-    setPagination({
-      ...pagination,
-      current: newPagination.current || 1,
-      pageSize: newPagination.pageSize || 10,
-    });
+    setCurrentPage(newPagination.current || 1);
+    setPageSize(newPagination.pageSize || 10);
   };
 
   const handleSellProduct = async (productId: number) => {
@@ -139,7 +131,11 @@ const SellableProductList: React.FC = () => {
         dataSource={products}
         rowKey="id"
         loading={loading}
-        pagination={pagination}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: total,
+        }}
         onChange={handleTableChange}
       />
     </div>

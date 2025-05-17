@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { API_URL } from '@/config';
-import { useAuth } from '@/context/AuthContext';
 
 export interface Product {
   id: number;
@@ -49,6 +48,22 @@ export interface UpdateSellStatusRequest {
   note: string;
 }
 
+export interface SellProductResponse {
+  productId: number;
+  status: string;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductSellStatusResponse {
+  productId: number;
+  status: string;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const productSellService = {
   // Lấy danh sách sản phẩm có thể đăng bán
   getSellableProducts: async (
@@ -75,7 +90,7 @@ export const productSellService = {
   // Đăng bán sản phẩm
   sellProduct: async (data: SellProductRequest) => {
     const token = localStorage.getItem('token');
-    const response = await axios.post<ApiResponse<any>>(
+    const response = await axios.post<ApiResponse<SellProductResponse>>(
       `${API_URL}/farmer/products/sell`,
       data,
       {
@@ -90,7 +105,7 @@ export const productSellService = {
   // Cập nhật trạng thái đăng bán
   updateSellStatus: async (data: UpdateSellStatusRequest) => {
     const token = localStorage.getItem('token');
-    const response = await axios.put<ApiResponse<any>>(
+    const response = await axios.put<ApiResponse<SellProductResponse>>(
       `${API_URL}/farmer/products/sell/status`,
       data,
       {
@@ -105,7 +120,7 @@ export const productSellService = {
   // Xem trạng thái đăng bán của sản phẩm
   getProductSellStatus: async (productId: number) => {
     const token = localStorage.getItem('token');
-    const response = await axios.get<ApiResponse<any>>(
+    const response = await axios.get<ApiResponse<ProductSellStatusResponse>>(
       `${API_URL}/farmer/products/${productId}/sell-status`,
       {
         headers: {

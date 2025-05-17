@@ -22,7 +22,6 @@ export interface FarmerOrder {
   shippingAddress: string;
   phone: string;
   items: OrderItem[];
-  transportUpdates: any[];
   createdAt: string;
   updatedAt: string;
   canConfirmDelivery: boolean;

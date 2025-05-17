@@ -1,4 +1,3 @@
-import { API_URL } from '@/config';
 import { api } from '@/services/api';
 
 export interface VNPayPaymentRequest {
@@ -6,6 +5,7 @@ export interface VNPayPaymentRequest {
   orderId: string;
   orderInfo: string;
   bankCode: string;
+  [key: string]: unknown;
 }
 
 export interface VNPayPaymentResponse {
@@ -29,6 +29,23 @@ export interface VNPayReturnResponse {
   data: string;
 }
 
+export interface PaymentStatusResponse {
+  code: number;
+  message: string;
+  data: {
+    transactionId: string;
+    orderId: string;
+    amount: string;
+    status: 'pending' | 'success' | 'failed';
+    bankCode: string;
+    orderInfo: string;
+    responseCode: string;
+    message: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
 export const paymentService = {
   createVNPayPayment: async (data: VNPayPaymentRequest): Promise<VNPayPaymentResponse['data']> => {
     const response = await api.post('/consumer/payments/vnpay/create', data);
@@ -40,7 +57,7 @@ export const paymentService = {
     return response.data;
   },
 
-  checkPaymentStatus: async (transactionId: string): Promise<any> => {
+  checkPaymentStatus: async (transactionId: string): Promise<PaymentStatusResponse> => {
     const response = await api.get(`/consumer/payments/vnpay/status/${transactionId}`);
     return response.data;
   },

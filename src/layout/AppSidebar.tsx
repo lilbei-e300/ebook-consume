@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
@@ -125,7 +125,7 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Xác định menu dựa trên role
-  const getNavItems = () => {
+  const getNavItems = useCallback(() => {
     if (!user) return [];
     
     switch (user.role) {
@@ -138,9 +138,9 @@ const AppSidebar: React.FC = () => {
       default:
         return [];
     }
-  };
+  }, [user]);
 
-  const navItems = getNavItems();
+  const navItems = useMemo(() => getNavItems(), [getNavItems]);
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -299,7 +299,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [pathname,isActive]);
+  }, [pathname, isActive, navItems]);
 
   useEffect(() => {
     // Set the height of the submenu items when the submenu is opened

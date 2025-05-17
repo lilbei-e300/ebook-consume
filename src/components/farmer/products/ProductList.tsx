@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Table, Button, Input, Select, Space } from 'antd';
 import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
@@ -24,7 +24,7 @@ const ProductList: React.FC = () => {
   const [isFormModalVisible, setIsFormModalVisible] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     if (!token) return;
     
     try {
@@ -43,11 +43,11 @@ const ProductList: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, searchParams, token]);
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, pageSize, searchParams, token]);
+  }, [fetchProducts]);
 
   const handleSearch = (value: string) => {
     setSearchParams(prev => ({ ...prev, keyword: value }));

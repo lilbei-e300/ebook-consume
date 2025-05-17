@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ProductHero from "@/components/products/ProductHero";
 import ProductFilters from "@/components/products/ProductFilters";
 import ProductGrid from "@/components/products/ProductGrid";
@@ -15,12 +15,10 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [searchResponse, setSearchResponse] = useState<ProductSearchResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
 
       const params: ProductSearchParams = {
         page: currentPage - 1,
@@ -40,16 +38,15 @@ export default function ProductsPage() {
       setSearchResponse(response);
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError('Có lỗi xảy ra khi tải danh sách sản phẩm');
       toast.error('Có lỗi xảy ra khi tải danh sách sản phẩm');
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, selectedCategory, sortBy, priceRange]);
 
   useEffect(() => {
     fetchProducts();
-  }, [selectedCategory, sortBy, priceRange, currentPage]);
+  }, [fetchProducts]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);

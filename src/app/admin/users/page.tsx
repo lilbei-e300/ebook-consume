@@ -3,11 +3,18 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { userService } from '@/services/userService';
-import { Table, Input, Select, Button, Space, Tag, message } from 'antd';
-import { SearchOutlined, ReloadOutlined, EyeOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { Table, Input, Select, Button, Space, Tag, message, TablePaginationConfig } from 'antd';
+import { ReloadOutlined, EyeOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import UserDetailModal from '@/components/admin/users/UserDetailModal';
 import UserStatusModal from '@/components/admin/users/UserStatusModal';
-import { User, UserSearchParams, UserSearchResponse } from '@/types/user';
+import { User, UserSearchParams } from '@/types/user';
+
+interface UserUpdateInfo {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}
 
 const { Search } = Input;
 
@@ -34,7 +41,11 @@ export default function UserManagement() {
     try {
       const response = await userService.searchUsers(searchParams, token);
       if (response.code === 200) {
-        const filteredUsers = response.data.users.filter(user => user.role !== 'admin');
+        const filteredUsers = response.data.users.filter(user => user.role !== 'admin').map(user => ({
+          ...user,
+          role: user.role as 'admin' | 'farmer' | 'transporter' | 'consumer',
+          status: user.status as 'active' | 'locked' | 'pending'
+        }));
         setUsers(filteredUsers);
         setTotal(filteredUsers.length);
       } else {
@@ -76,11 +87,11 @@ export default function UserManagement() {
     }));
   };
 
-  const handleTableChange = (pagination: any) => {
+  const handleTableChange = (pagination: TablePaginationConfig) => {
     setSearchParams(prev => ({
       ...prev,
-      page: pagination.current - 1,
-      size: pagination.pageSize
+      page: (pagination.current || 1) - 1,
+      size: pagination.pageSize || 10
     }));
   };
 
@@ -111,7 +122,7 @@ export default function UserManagement() {
     }
   };
 
-  const handleUpdateInfo = async (user: User, formData: any) => {
+  const handleUpdateInfo = async (user: User, formData: UserUpdateInfo) => {
     if (!token) return;
 
     try {
@@ -189,7 +200,7 @@ export default function UserManagement() {
     {
       title: 'Thao tác',
       key: 'action',
-      render: (_, record: User) => (
+      render: (_: unknown, record: User) => (
         <Space size="middle">
           <Button
             icon={<EyeOutlined />}

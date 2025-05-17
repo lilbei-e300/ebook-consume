@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { orderService, OrderSummary, OrderListResponse } from '@/services/orderService';
@@ -19,16 +19,7 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<OrderSummary | null>(null);
   const [cancelReason, setCancelReason] = useState('');
 
-  useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      router.push('/login');
-      return;
-    }
-
-    fetchOrders();
-  }, [isAuthenticated, isLoading, selectedStatus, searchKeyword, currentPage]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const data = await orderService.getOrders({
         status: selectedStatus,
@@ -43,7 +34,16 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedStatus, searchKeyword, currentPage]);
+
+  useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      router.push('/login');
+      return;
+    }
+
+    fetchOrders();
+  }, [isAuthenticated, isLoading, fetchOrders, router]);
 
   const handleStatusChange = (status: string) => {
     setSelectedStatus(status);

@@ -128,7 +128,7 @@ export const productService = {
       throw error;
     }
   },
-  getProductDetail: async (id: number): Promise<Product> => {
+  getProductDetail: async (id: number): Promise<ProductDetail> => {
     try {
       const response = await fetch(`${API_URL}/products/${id}`);
       const data = await response.json();

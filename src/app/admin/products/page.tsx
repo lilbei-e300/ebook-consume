@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { adminProductService } from '@/services/admin/productService';
 import { Product, ProductSearchRequest, ProductSearchResponse } from '@/types/product';
 import { Table, Button, Input, Select, Modal, Form, message, Tag, Space, TablePaginationConfig } from 'antd';
@@ -27,7 +27,7 @@ const AdminProductsPage = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [deleteReason, setDeleteReason] = useState('');
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await adminProductService.searchProducts(searchParams);
@@ -39,11 +39,11 @@ const AdminProductsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchParams]);
 
   useEffect(() => {
     fetchProducts();
-  }, [searchParams]);
+  }, [fetchProducts]);
 
   const handleSearch = (value: string) => {
     setSearchParams(prev => ({

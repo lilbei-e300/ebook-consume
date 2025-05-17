@@ -5,11 +5,13 @@ import { Card, Form, Input, Button, message } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
 import { farmerProfileService } from '@/services/farmer/farmerProfileService';
+import { useRouter } from 'next/navigation';
 
 const ChangePasswordPage = () => {
   const { token } = useAuth();
   const [form] = Form.useForm();
   const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
 
   const handleChangePassword = async (values: { oldPassword: string; newPassword: string; confirmPassword: string }) => {
     if (!token) return;
@@ -17,9 +19,10 @@ const ChangePasswordPage = () => {
       setLoading(true);
       await farmerProfileService.changePassword(values, token);
       message.success('Thay đổi mật khẩu thành công');
-      form.resetFields();
-    } catch (error) {
-      message.error('Không thể thay đổi mật khẩu');
+      router.push('/farmer/profile');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Có lỗi xảy ra khi đổi mật khẩu';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Upload, message, Card, Row, Col, Statistic, Avatar } from 'antd';
-import { UserOutlined, UploadOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Form, Input, Button, Upload, message, Card, Row, Col, Statistic } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
 import { farmerProfileService, FarmerProfile, UpdateProfileRequest } from '@/services/farmer/farmerProfileService';
 import type { RcFile, UploadFile as AntUploadFile } from 'antd/es/upload/interface';
@@ -17,37 +17,33 @@ const ProfileForm: React.FC = () => {
   const [profile, setProfile] = useState<FarmerProfile | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  useEffect(() => {
-    fetchProfile();
-  }, [token]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!token) return;
     
     try {
       setLoading(true);
       const response = await farmerProfileService.getProfile(token);
-      setProfile(response.data);
+      setProfile(response);
       
       // Cập nhật form với dữ liệu từ API
       form.setFieldsValue({
-        fullName: response.data.fullName,
-        email: response.data.email,
-        phone: response.data.phone,
-        address: response.data.address,
-        farmName: response.data.farmName,
-        farmAddress: response.data.farmAddress,
-        certification: response.data.certification,
-        bio: response.data.bio
+        fullName: response.fullName,
+        email: response.email,
+        phone: response.phone,
+        address: response.address,
+        farmName: response.farmName,
+        farmAddress: response.farmAddress,
+        certification: response.certification,
+        bio: response.bio
       });
 
       // Cập nhật ảnh đại diện nếu có
-      if (response.data.imageUrl) {
+      if (response.imageUrl) {
         setFileList([{
           uid: '-1',
           name: 'avatar.jpg',
           status: 'done',
-          url: response.data.imageUrl
+          url: response.imageUrl
         }]);
       }
     } catch (error) {
@@ -56,7 +52,11 @@ const ProfileForm: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, form]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleSubmit = async (values: UpdateProfileRequest) => {
     if (!token) return;
@@ -94,12 +94,14 @@ const ProfileForm: React.FC = () => {
       const response = await farmerProfileService.updateAvatar(file, token);
       
       // Cập nhật URL từ server
-      setFileList([{
-        uid: file.uid,
-        name: file.name,
-        status: 'done',
-        url: response.data.imageUrl,
-      }]);
+      if (response.imageUrl) {
+        setFileList([{
+          uid: file.uid,
+          name: file.name,
+          status: 'done',
+          url: response.imageUrl,
+        }]);
+      }
 
       message.success('Cập nhật ảnh đại diện thành công');
       return false;

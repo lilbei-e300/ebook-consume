@@ -1,225 +1,157 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { Card, Form, Input, Button, message, Upload, Row, Col, Statistic } from 'antd';
-import { UserOutlined, PhoneOutlined, MailOutlined, HomeOutlined, ShopOutlined, FileTextOutlined, UploadOutlined } from '@ant-design/icons';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Card, Form, Input, Button, message, Upload } from 'antd';
+import { UserOutlined, MailOutlined, PhoneOutlined, UploadOutlined } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
-import { farmerProfileService, FarmerProfile, UpdateProfileRequest } from '@/services/farmer/farmerProfileService';
-import Image from 'next/image';
+import { farmerProfileService, UpdateProfileRequest } from '@/services/farmer/farmerProfileService';
+import { useRouter } from 'next/navigation';
+import type { UploadFile } from 'antd/es/upload/interface';
+import { RcFile } from 'antd/es/upload';
 
-const { TextArea } = Input;
-
-const FarmerProfilePage = () => {
+const ProfilePage = () => {
   const { token } = useAuth();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<FarmerProfile | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const router = useRouter();
 
-  useEffect(() => {
-    fetchProfile();
-  }, [token]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!token) return;
     try {
       setLoading(true);
-      const data = await farmerProfileService.getProfile(token);
-      setProfile(data);
-      form.setFieldsValue({
-        fullName: data.fullName,
-        phone: data.phone,
-        email: data.email,
-        address: data.address,
-        farmName: data.farmName,
-        farmAddress: data.farmAddress,
-        certification: data.certification,
-        bio: data.bio,
-      });
-    } catch (error) {
-      message.error('Không thể tải thông tin hồ sơ');
+      const response = await farmerProfileService.getProfile(token);
+      form.setFieldsValue(response);
+      if (response.imageUrl) {
+        setFileList([{
+          uid: '-1',
+          name: 'avatar.png',
+          status: 'done',
+          url: response.imageUrl,
+        }]);
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Có lỗi xảy ra khi tải thông tin cá nhân';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, form]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleUpdateProfile = async (values: UpdateProfileRequest) => {
     if (!token) return;
     try {
       setLoading(true);
-      const updatedProfile = await farmerProfileService.updateProfile(values, token);
-      setProfile(updatedProfile);
-      message.success('Cập nhật hồ sơ thành công');
-    } catch (error) {
-      message.error('Không thể cập nhật hồ sơ');
+      await farmerProfileService.updateProfile(values, token);
+      message.success('Cập nhật thông tin thành công');
+      fetchProfile();
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Có lỗi xảy ra khi cập nhật thông tin';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUploadAvatar = async (file: File) => {
-    if (!token) return;
+  const handleUpload = async (file: RcFile) => {
+    if (!token) return false;
     try {
       setUploading(true);
-      const updatedProfile = await farmerProfileService.updateAvatar(file, token);
-      setProfile(updatedProfile);
-      message.success('Cập nhật ảnh đại diện thành công');
-    } catch (error) {
-      message.error('Không thể cập nhật ảnh đại diện');
+      const formData = new FormData();
+      formData.append('file', file);
+      await farmerProfileService.updateAvatar(file, token);
+      message.success('Tải lên ảnh đại diện thành công');
+      fetchProfile();
+      return false;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Có lỗi xảy ra khi tải lên ảnh đại diện';
+      message.error(errorMessage);
+      return false;
     } finally {
       setUploading(false);
     }
-    return false;
+  };
+
+  const uploadProps = {
+    onRemove: () => {
+      setFileList([]);
+    },
+    beforeUpload: (file: RcFile) => {
+      setFileList([file]);
+      handleUpload(file);
+      return false;
+    },
+    fileList,
   };
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Hồ sơ của tôi</h1>
+      <h1 className="text-2xl font-bold mb-6">Thông tin cá nhân</h1>
 
-      <Row gutter={[16, 16]}>
-        <Col span={16}>
-          <Card loading={loading}>
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleUpdateProfile}
+      <Card>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleUpdateProfile}
+        >
+          <Form.Item
+            name="fullName"
+            label="Họ và tên"
+            rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
+          >
+            <Input prefix={<UserOutlined />} />
+          </Form.Item>
+
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: 'Vui lòng nhập email' },
+              { type: 'email', message: 'Email không hợp lệ' }
+            ]}
+          >
+            <Input prefix={<MailOutlined />} />
+          </Form.Item>
+
+          <Form.Item
+            name="phone"
+            label="Số điện thoại"
+            rules={[
+              { required: true, message: 'Vui lòng nhập số điện thoại' },
+              { pattern: /^[0-9]{10}$/, message: 'Số điện thoại không hợp lệ' }
+            ]}
+          >
+            <Input prefix={<PhoneOutlined />} />
+          </Form.Item>
+
+          <Form.Item label="Ảnh đại diện">
+            <Upload {...uploadProps} listType="picture">
+              <Button icon={<UploadOutlined />} loading={uploading}>
+                Tải lên ảnh đại diện
+              </Button>
+            </Upload>
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Cập nhật thông tin
+            </Button>
+            <Button 
+              type="link" 
+              onClick={() => router.push('/farmer/profile/change-password')}
+              className="ml-4"
             >
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="fullName"
-                    label="Họ và tên"
-                    rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
-                  >
-                    <Input prefix={<UserOutlined />} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="phone"
-                    label="Số điện thoại"
-                    rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
-                  >
-                    <Input prefix={<PhoneOutlined />} />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item
-                name="email"
-                label="Email"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập email' },
-                  { type: 'email', message: 'Email không hợp lệ' }
-                ]}
-              >
-                <Input prefix={<MailOutlined />} />
-              </Form.Item>
-
-              <Form.Item
-                name="address"
-                label="Địa chỉ"
-                rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}
-              >
-                <Input prefix={<HomeOutlined />} />
-              </Form.Item>
-
-              <Form.Item
-                name="farmName"
-                label="Tên trang trại"
-                rules={[{ required: true, message: 'Vui lòng nhập tên trang trại' }]}
-              >
-                <Input prefix={<ShopOutlined />} />
-              </Form.Item>
-
-              <Form.Item
-                name="farmAddress"
-                label="Địa chỉ trang trại"
-                rules={[{ required: true, message: 'Vui lòng nhập địa chỉ trang trại' }]}
-              >
-                <Input prefix={<HomeOutlined />} />
-              </Form.Item>
-
-              <Form.Item
-                name="certification"
-                label="Chứng nhận"
-              >
-                <Input prefix={<FileTextOutlined />} />
-              </Form.Item>
-
-              <Form.Item
-                name="bio"
-                label="Giới thiệu"
-              >
-                <TextArea rows={4} />
-              </Form.Item>
-
-              <Form.Item>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  Cập nhật hồ sơ
-                </Button>
-              </Form.Item>
-            </Form>
-          </Card>
-        </Col>
-
-        <Col span={8}>
-          <Card loading={loading}>
-            <div className="flex flex-col items-center">
-              <div className="relative w-32 h-32 mb-4">
-                <Image
-                  src={profile?.imageUrl || '/images/user/user.jpg'}
-                  alt="Avatar"
-                  fill
-                  className="rounded-full object-cover"
-                />
-              </div>
-
-              <Upload
-                accept="image/*"
-                showUploadList={false}
-                beforeUpload={handleUploadAvatar}
-              >
-                <Button icon={<UploadOutlined />} loading={uploading}>
-                  Thay đổi ảnh đại diện
-                </Button>
-              </Upload>
-
-              <div className="mt-6 w-full">
-                <h3 className="text-lg font-semibold mb-4">Thống kê</h3>
-                <Row gutter={[16, 16]}>
-                  <Col span={12}>
-                    <Statistic
-                      title="Sản phẩm"
-                      value={profile?.statistics.totalProducts}
-                    />
-                  </Col>
-                  <Col span={12}>
-                    <Statistic
-                      title="Đơn hàng"
-                      value={profile?.statistics.totalOrders}
-                    />
-                  </Col>
-                  <Col span={12}>
-                    <Statistic
-                      title="Đánh giá"
-                      value={profile?.statistics.totalReviews}
-                    />
-                  </Col>
-                  <Col span={12}>
-                    <Statistic
-                      title="Điểm đánh giá"
-                      value={profile?.statistics.averageRating}
-                      precision={1}
-                    />
-                  </Col>
-                </Row>
-              </div>
-            </div>
-          </Card>
-        </Col>
-      </Row>
+              Đổi mật khẩu
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };
 
-export default FarmerProfilePage; 
+export default ProfilePage; 

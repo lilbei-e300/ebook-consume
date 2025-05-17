@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Card, Input, Select, Button, Tag } from 'antd';
 import { SearchOutlined, ReloadOutlined, EyeOutlined } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
@@ -25,9 +25,8 @@ const FarmerOrdersPage = () => {
     isHistory: false
   });
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     if (!token) return;
-    
     try {
       setLoading(true);
       const response = await farmerOrderService.getOrders(searchParams, token);
@@ -41,11 +40,11 @@ const FarmerOrdersPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, searchParams]);
 
   useEffect(() => {
     fetchOrders();
-  }, [token, searchParams]);
+  }, [fetchOrders]);
 
   const handleSearch = (value: string) => {
     setSearchParams(prev => ({

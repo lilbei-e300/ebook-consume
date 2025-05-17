@@ -10,6 +10,15 @@ export interface OrderItem {
   subtotal: number;
 }
 
+export interface TransportUpdate {
+  id: number;
+  status: string;
+  location: string;
+  description: string;
+  timestamp: string;
+  updatedBy: string;
+}
+
 export interface Order {
   id: number;
   orderNumber: string;
@@ -29,7 +38,7 @@ export interface Order {
   transporterPhone: string;
   currentLocation: string | null;
   estimatedDeliveryTime: string | null;
-  transportUpdates: any[];
+  transportUpdates: TransportUpdate[];
   items: OrderItem[];
   canCancel: boolean;
 }

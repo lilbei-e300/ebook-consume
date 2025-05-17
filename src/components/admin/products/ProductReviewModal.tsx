@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, Radio, message } from 'antd';
-import { Product } from '@/types/product';
+import { Product, ProductReviewRequest } from '@/types/product';
 import { adminProductService } from '@/services/admin/productService';
 
 interface ProductReviewModalProps {
@@ -8,6 +8,11 @@ interface ProductReviewModalProps {
   visible: boolean;
   onClose: () => void;
   onSuccess: () => void;
+}
+
+interface ProductReviewFormValues {
+  status: 'approved' | 'rejected';
+  reason: string;
 }
 
 const ProductReviewModal: React.FC<ProductReviewModalProps> = ({
@@ -19,18 +24,19 @@ const ProductReviewModal: React.FC<ProductReviewModalProps> = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: ProductReviewFormValues) => {
     try {
       setLoading(true);
-      await adminProductService.reviewProduct({
+      const reviewData: ProductReviewRequest = {
         productId: product.id,
         status: values.status,
         reason: values.reason
-      });
+      };
+      await adminProductService.reviewProduct(reviewData);
       message.success('Đã cập nhật trạng thái sản phẩm');
       onSuccess();
       onClose();
-    } catch (error) {
+    } catch {
       message.error('Có lỗi xảy ra khi cập nhật trạng thái sản phẩm');
     } finally {
       setLoading(false);

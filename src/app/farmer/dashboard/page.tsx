@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, Row, Col, Statistic, Table, Tag } from 'antd';
 import { ArrowUpOutlined, ShoppingCartOutlined, UserOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
@@ -7,17 +7,14 @@ import { farmerDashboardService, DashboardData } from '@/services/farmer/farmerD
 import { formatCurrency } from '@/utils/format';
 import { Line } from '@ant-design/plots';
 import dayjs from 'dayjs';
+import { message } from 'antd';
 
 const FarmerDashboard = () => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [token]);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     if (!token) return;
     try {
       setLoading(true);
@@ -25,10 +22,15 @@ const FarmerDashboard = () => {
       setDashboardData(data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      message.error('Có lỗi xảy ra khi tải dữ liệu');
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const recentOrdersColumns = [
     {

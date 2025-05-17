@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/authService';
 
@@ -35,8 +35,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  const logout = useCallback(async () => {
+    try {
+      if (token) {
+        await authService.logout(token);
+      }
+      
+      // Xóa dữ liệu khỏi localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('tokenExpiration');
+      
+      // Cập nhật state
+      setToken(null);
+      setUser(null);
+      
+      // Chuyển về trang login
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Ngay cả khi có lỗi, vẫn xóa dữ liệu và chuyển về trang login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('tokenExpiration');
+      setToken(null);
+      setUser(null);
+      router.push('/login');
+    }
+  }, [token, router]);
+
   // Hàm kiểm tra token hết hạn
-  const checkTokenExpiration = () => {
+  const checkTokenExpiration = useCallback(() => {
     const storedToken = localStorage.getItem('token');
     const tokenExpiration = localStorage.getItem('tokenExpiration');
     
@@ -49,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout();
       }
     }
-  };
+  }, [logout]);
 
   // Khởi tạo state từ localStorage và kiểm tra token hết hạn
   useEffect(() => {
@@ -80,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const interval = setInterval(checkTokenExpiration, 60000); // 60000ms = 1 phút
     return () => clearInterval(interval);
-  }, []);
+  }, [checkTokenExpiration]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -184,35 +213,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
-    }
-  };
-
-  const logout = async () => {
-    try {
-      if (token) {
-        await authService.logout(token);
-      }
-      
-      // Xóa dữ liệu khỏi localStorage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('tokenExpiration');
-      
-      // Cập nhật state
-      setToken(null);
-      setUser(null);
-      
-      // Chuyển về trang login
-      router.push('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Ngay cả khi có lỗi, vẫn xóa dữ liệu và chuyển về trang login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('tokenExpiration');
-      setToken(null);
-      setUser(null);
-      router.push('/login');
     }
   };
 

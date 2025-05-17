@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, InputNumber, message } from 'antd';
-import { Product } from '@/types/product';
+import { Product, ProductUpdateRequest } from '@/types/product';
 import { adminProductService } from '@/services/admin/productService';
 
 interface ProductEditModalProps {
@@ -8,6 +8,16 @@ interface ProductEditModalProps {
   visible: boolean;
   onClose: () => void;
   onSuccess: () => void;
+}
+
+interface ProductFormValues {
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  category: string;
+  originInfo: string;
+  editReason: string;
 }
 
 const ProductEditModal: React.FC<ProductEditModalProps> = ({
@@ -19,17 +29,19 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: ProductFormValues) => {
     try {
       setLoading(true);
-      await adminProductService.updateProduct(product.id, {
-        ...values,
-        editReason: values.editReason
-      });
+      const { editReason, ...productData } = values;
+      const updateData: ProductUpdateRequest = {
+        ...productData,
+        editReason
+      };
+      await adminProductService.updateProduct(product.id, updateData);
       message.success('Đã cập nhật thông tin sản phẩm');
       onSuccess();
       onClose();
-    } catch (error) {
+    } catch {
       message.error('Có lỗi xảy ra khi cập nhật thông tin sản phẩm');
     } finally {
       setLoading(false);
@@ -82,7 +94,10 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
           <InputNumber
             min={0}
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+            parser={(value) => {
+              const parsed = value ? Number(value.replace(/\$\s?|(,*)/g, '')) : 0;
+              return parsed as 0;
+            }}
             style={{ width: '100%' }}
           />
         </Form.Item>
