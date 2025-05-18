@@ -98,7 +98,7 @@ export default function AboutSection() {
           <div className="mt-10 lg:mt-0">
             <div className="relative">
               <Image
-                src="https://picsum.photos/seed/about/800/600"
+                src="/images/const/nongsan.jpeg"
                 alt="Nông nghiệp thông minh"
                 width={800}
                 height={600}

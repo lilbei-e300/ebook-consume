@@ -8,9 +8,9 @@ export default function Login() {
   const [error, setError] = useState('');
   const { login } = useAuth();
 
-  const handleLogin = async (username: string, password: string) => {
+  const handleLogin = async (usernameOrEmail: string, password: string) => {
     try {
-      await login(username, password);
+      await login(usernameOrEmail, password);
     } catch (error) {
       console.error('Login error:', error);
       setError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');

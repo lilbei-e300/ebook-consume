@@ -5,30 +5,30 @@ import Link from "next/link";
 const newsItems = [
   {
     id: 1,
-    title: "Nông nghiệp hữu cơ: Xu hướng phát triển bền vững",
-    excerpt: "Khám phá những lợi ích của nông nghiệp hữu cơ và cách nó đang thay đổi ngành nông nghiệp Việt Nam.",
-    image: "https://picsum.photos/seed/news1/800/600",
-    date: "15/05/2023",
-    category: "Nông nghiệp",
-    link: "/news/organic-farming-trend"
+    title: "Xu hướng nông nghiệp thông minh 2025",
+    excerpt: "Công nghệ AI và IoT đang thay đổi cách canh tác truyền thống, mang lại hiệu quả cao hơn cho nông dân.",
+    image: "https://picsum.photos/seed/smart-farming-2025/800/600",
+    date: "15/03/2025",
+    category: "Công nghệ",
+    link: "/news/smart-farming-2025"
   },
   {
     id: 2,
-    title: "Công nghệ blockchain trong truy xuất nguồn gốc nông sản",
-    excerpt: "Công nghệ blockchain đang cách mạng hóa cách chúng ta theo dõi và xác minh nguồn gốc thực phẩm.",
-    image: "https://picsum.photos/seed/news2/800/600",
-    date: "10/05/2023",
-    category: "Công nghệ",
-    link: "/news/blockchain-in-agriculture"
+    title: "Nông sản sạch: Tiêu chuẩn mới 2025",
+    excerpt: "Bộ tiêu chuẩn mới về nông sản sạch sẽ được áp dụng từ năm 2025, nâng cao chất lượng sản phẩm.",
+    image: "https://picsum.photos/seed/clean-farming-2025/800/600",
+    date: "10/03/2025",
+    category: "Tiêu chuẩn",
+    link: "/news/clean-farming-standards-2025"
   },
   {
     id: 3,
-    title: "Hướng dẫn bảo quản rau củ quả tươi lâu",
-    excerpt: "Những mẹo đơn giản giúp bảo quản rau củ quả tươi lâu hơn, giảm thiểu lãng phí thực phẩm.",
-    image: "https://picsum.photos/seed/news3/800/600",
-    date: "05/05/2023",
-    category: "Mẹo vặt",
-    link: "/news/preserve-fresh-vegetables"
+    title: "Thị trường nông sản hữu cơ 2025",
+    excerpt: "Dự báo tăng trưởng mạnh của thị trường nông sản hữu cơ trong năm 2025, cơ hội cho nông dân.",
+    image: "https://picsum.photos/seed/organic-market-2025/800/600",
+    date: "05/03/2025",
+    category: "Thị trường",
+    link: "/news/organic-market-2025"
   }
 ];
 
@@ -78,15 +78,6 @@ export default function NewsSection() {
               </div>
             </div>
           ))}
-        </div>
-        
-        <div className="text-center mt-12">
-          <Link 
-            href="/news"
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-brand-600 hover:bg-brand-700 transition-colors duration-300"
-          >
-            Xem tất cả tin tức
-          </Link>
         </div>
       </div>
     </section>

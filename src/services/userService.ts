@@ -80,9 +80,8 @@ export const userService = {
 
   updateUserStatus: async (data: UserStatusUpdate, token: string): Promise<ApiResponse<{ message: string }>> => {
     try {
-      const response = await axios.put(`${API_URL}/admin/users/status`, data, {
+      const response = await axios.put(`${API_URL}/admin/users/${data.userId}/status?status=${data.status}`, null, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         }
       });

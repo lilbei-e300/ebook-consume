@@ -9,10 +9,21 @@ interface User {
   role: 'admin' | 'farmer' | 'consumer' | 'transporter';
 }
 
+interface RegisterResponse {
+  code: number;
+  message: string;
+  data: {
+    id: string;
+    username: string;
+    email: string;
+    role: string;
+  };
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (usernameOrEmail: string, password: string) => Promise<void>;
   register: (data: {
     username: string;
     password: string;
@@ -21,7 +32,7 @@ interface AuthContextType {
     fullName: string;
     phone: string;
     role: string;
-  }) => Promise<void>;
+  }) => Promise<RegisterResponse>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -111,9 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, [checkTokenExpiration]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (usernameOrEmail: string, password: string) => {
     try {
-      if (!email || !password) {
+      if (!usernameOrEmail || !password) {
         throw new Error('Vui lòng nhập đầy đủ thông tin đăng nhập');
       }
 
@@ -122,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ usernameOrEmail, password }),
       });
 
       const data = await response.json();
@@ -197,19 +208,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     role: string;
   }) => {
     try {
+      // Chỉ cho phép đăng ký với role consumer hoặc farmer
+      if (data.role !== 'CONSUMER' && data.role !== 'FARMER') {
+        throw new Error('Vai trò không hợp lệ');
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          username: data.username,
+          email: data.email,
+          password: data.password,
+          fullName: data.fullName,
+          phone: data.phone,
+          role: data.role.toLowerCase()
+        }),
       });
 
       const responseData = await response.json();
 
-      if (responseData.code !== 200) {
-        throw new Error(responseData.message);
+      if (responseData.code !== 201) {
+        throw new Error(responseData.message || 'Đăng ký thất bại');
       }
+
+      return responseData;
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

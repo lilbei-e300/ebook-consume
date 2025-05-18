@@ -5,10 +5,10 @@ import Image from "next/image";
 export default function AboutTeam() {
   const team = [
     {
-      name: "Nguyễn Văn A",
+      name: "Lò Tiến Anh",
       role: "Giám đốc điều hành",
-      image: "https://picsum.photos/seed/team-1/400/400",
-      description: "Với hơn 10 năm kinh nghiệm trong lĩnh vực nông nghiệp và thương mại điện tử.",
+      image: "/images/const/mys.jpg",
+      description: "Sinh viên trường Đại học Công Nghệ Đông Á",
       social: {
         linkedin: "#",
         twitter: "#",
@@ -16,10 +16,10 @@ export default function AboutTeam() {
       },
     },
     {
-      name: "Trần Thị B",
+      name: "Trần Thị Bích",
       role: "Trưởng phòng Kỹ thuật",
-      image: "https://picsum.photos/seed/team-2/400/400",
-      description: "Chuyên gia về phát triển phần mềm và giải pháp công nghệ cho nông nghiệp.",
+      image: "/images/const/mys.jpg",
+      description: "Sinh viên trường Đại học Công Nghệ Đông Á",
       social: {
         linkedin: "#",
         twitter: "#",
@@ -27,10 +27,10 @@ export default function AboutTeam() {
       },
     },
     {
-      name: "Lê Văn C",
+      name: "Lê Văn Cường",
       role: "Trưởng phòng Kinh doanh",
-      image: "https://picsum.photos/seed/team-3/400/400",
-      description: "Chuyên gia về phát triển thị trường và xây dựng mối quan hệ với đối tác.",
+      image: "/images/const/mys.jpg",
+      description: "Sinh viên trường Đại học Công Nghệ Đông Á",
       social: {
         linkedin: "#",
         twitter: "#",
@@ -38,10 +38,10 @@ export default function AboutTeam() {
       },
     },
     {
-      name: "Phạm Thị D",
+      name: "Phạm Thị Dung",
       role: "Trưởng phòng Hỗ trợ nông dân",
-      image: "https://picsum.photos/seed/team-4/400/400",
-      description: "Chuyên gia về nông nghiệp và phát triển bền vững.",
+      image: "/images/const/mys.jpg",
+      description: "Sinh viên trường Đại học Công Nghệ Đông Á",
       social: {
         linkedin: "#",
         twitter: "#",

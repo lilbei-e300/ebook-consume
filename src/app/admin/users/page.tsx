@@ -32,7 +32,7 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
-  const [statusAction, setStatusAction] = useState<'lock' | 'unlock'>('lock');
+  const [statusAction, setStatusAction] = useState<'lock' | 'unlock' | 'approve'>('lock');
 
   const fetchUsers = useCallback(async () => {
     if (!token) return;
@@ -100,14 +100,14 @@ export default function UserManagement() {
     setIsDetailModalVisible(true);
   };
 
-  const handleUpdateStatus = async (userId: number, status: string, reason: string) => {
+  const handleUpdateStatus = async (userId: number, status: string) => {
     if (!token) return;
 
     try {
       const response = await userService.updateUserStatus({
         userId,
         status: status as 'active' | 'locked' | 'pending',
-        reason
+        reason: ''
       }, token);
 
       if (response.code === 200) {
@@ -225,6 +225,17 @@ export default function UserManagement() {
                 setIsStatusModalVisible(true);
               }}
             />
+          ) : record.status === 'pending' ? (
+            <Button 
+              type="primary"
+              onClick={() => {
+                setSelectedUser(record);
+                setStatusAction('approve');
+                setIsStatusModalVisible(true);
+              }}
+            >
+              Duyệt
+            </Button>
           ) : null}
         </Space>
       ),
@@ -296,7 +307,7 @@ export default function UserManagement() {
         onClose={() => setIsDetailModalVisible(false)}
         onUpdateStatus={(user, status) => {
           setSelectedUser(user);
-          setStatusAction(status === 'locked' ? 'lock' : 'unlock');
+          setStatusAction(status === 'locked' ? 'lock' : status === 'pending' ? 'approve' : 'unlock');
           setIsStatusModalVisible(true);
         }}
         onUpdateInfo={handleUpdateInfo}

@@ -65,7 +65,7 @@ export default function AboutMission() {
           <div className="mt-10 lg:mt-0">
             <div className="relative rounded-lg overflow-hidden shadow-xl">
               <Image
-                src="https://picsum.photos/seed/about-mission/800/600"
+                src="/images/const/su-menh.jpg"
                 alt="Sứ mệnh của chúng tôi"
                 width={800}
                 height={600}

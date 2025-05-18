@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Modal, Input, message } from 'antd';
+import { Modal, message } from 'antd';
 import { User } from '@/types/user';
 
 interface UserStatusModalProps {
   user: User | null;
   visible: boolean;
   onClose: () => void;
-  onConfirm: (userId: number, status: string, reason: string) => Promise<void>;
-  action: 'lock' | 'unlock';
+  onConfirm: (userId: number, status: string) => Promise<void>;
+  action: 'lock' | 'unlock' | 'approve';
 }
 
 const UserStatusModal: React.FC<UserStatusModalProps> = ({
@@ -17,21 +17,14 @@ const UserStatusModal: React.FC<UserStatusModalProps> = ({
   onConfirm,
   action
 }) => {
-  const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
 
   if (!user) return null;
 
   const handleConfirm = async () => {
-    if (!reason) {
-      message.error('Vui lòng nhập lý do');
-      return;
-    }
-
     setLoading(true);
     try {
-      await onConfirm(user.id, action === 'lock' ? 'locked' : 'active', reason);
-      setReason('');
+      await onConfirm(user.id, action === 'lock' ? 'locked' : 'active');
       onClose();
     } catch (error) {
       console.error('Error updating user status:', error);
@@ -41,33 +34,58 @@ const UserStatusModal: React.FC<UserStatusModalProps> = ({
     }
   };
 
+  const getModalTitle = () => {
+    switch (action) {
+      case 'lock':
+        return 'Khóa tài khoản';
+      case 'unlock':
+        return 'Mở khóa tài khoản';
+      case 'approve':
+        return 'Duyệt tài khoản';
+      default:
+        return '';
+    }
+  };
+
+  const getModalContent = () => {
+    switch (action) {
+      case 'lock':
+        return `Bạn có chắc chắn muốn khóa tài khoản của ${user.fullName}?`;
+      case 'unlock':
+        return `Bạn có chắc chắn muốn mở khóa tài khoản của ${user.fullName}?`;
+      case 'approve':
+        return `Bạn có chắc chắn muốn duyệt tài khoản của ${user.fullName}?`;
+      default:
+        return '';
+    }
+  };
+
+  const getOkText = () => {
+    switch (action) {
+      case 'lock':
+        return 'Khóa';
+      case 'unlock':
+        return 'Mở khóa';
+      case 'approve':
+        return 'Duyệt';
+      default:
+        return '';
+    }
+  };
+
   return (
     <Modal
-      title={action === 'lock' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
+      title={getModalTitle()}
       open={visible}
       onOk={handleConfirm}
       onCancel={onClose}
       confirmLoading={loading}
-      okText={action === 'lock' ? 'Khóa' : 'Mở khóa'}
+      okText={getOkText()}
       cancelText="Hủy"
       okButtonProps={{ danger: action === 'lock' }}
     >
       <div className="space-y-4">
-        <p>
-          {action === 'lock' 
-            ? `Bạn có chắc chắn muốn khóa tài khoản của ${user.fullName}?`
-            : `Bạn có chắc chắn muốn mở khóa tài khoản của ${user.fullName}?`
-          }
-        </p>
-        <div>
-          <p className="text-gray-500 mb-1">Lý do</p>
-          <Input.TextArea
-            value={reason}
-            onChange={e => setReason(e.target.value)}
-            placeholder={action === 'lock' ? 'Nhập lý do khóa tài khoản' : 'Nhập lý do mở khóa tài khoản'}
-            rows={3}
-          />
-        </div>
+        <p>{getModalContent()}</p>
       </div>
     </Modal>
   );

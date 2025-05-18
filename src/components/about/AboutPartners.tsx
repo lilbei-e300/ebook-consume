@@ -5,23 +5,23 @@ import Image from "next/image";
 export default function AboutPartners() {
   const partners = [
     {
-      name: "Công ty Nông nghiệp Xanh",
-      logo: "https://picsum.photos/seed/partner-1/200/100",
+      name: "Đại học Công nghệ Đông Á",
+      logo: "/images/const/logo-dai-hoc-cong-nghe-dong-a.jpg",
       description: "Đối tác cung cấp nông sản hữu cơ chất lượng cao",
     },
     {
-      name: "Tập đoàn Thương mại Y",
-      logo: "https://picsum.photos/seed/partner-2/200/100",
+      name: "Đại học Công nghệ Đông Á",
+      logo: "/images/const/logo-dai-hoc-cong-nghe-dong-a.jpg",
       description: "Đối tác phân phối và logistics",
     },
     {
-      name: "Công ty Công nghệ Z",
-      logo: "https://picsum.photos/seed/partner-3/200/100",
+      name: "Đại học Công nghệ Đông Á",
+      logo: "/images/const/logo-dai-hoc-cong-nghe-dong-a.jpg",
       description: "Đối tác công nghệ và phát triển nền tảng",
     },
     {
-      name: "Hiệp hội Nông dân W",
-      logo: "https://picsum.photos/seed/partner-4/200/100",
+      name: "Đại học Công nghệ Đông Á",
+      logo: "/images/const/logo-dai-hoc-cong-nghe-dong-a.jpg",
       description: "Đối tác hỗ trợ nông dân và phát triển nông nghiệp",
     },
   ];
