@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { cartService } from "@/services/cartService";
 import { toast } from "react-hot-toast";
+import MessageModal from '@/components/MessageModal';
 
 interface ProductTrackInfo {
   id: number;
@@ -35,6 +36,7 @@ export default function ProductDetailPage() {
   const [showTrackModal, setShowTrackModal] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [trackInfo, setTrackInfo] = useState<ProductTrackInfo | null>(null);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -235,6 +237,41 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Liên hệ với người bán</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Nhắn tin trực tiếp với {product.farmer.fullName}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setIsMessageModalOpen(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            Nhắn tin
+          </button>
+        </div>
+      </div>
+
+      <MessageModal
+        farmerId={product.farmer.id}
+        farmerName={product.farmer.fullName}
+        isOpen={isMessageModalOpen}
+        onClose={() => setIsMessageModalOpen(false)}
+        onSuccess={() => {
+          // Có thể thêm thông báo thành công ở đây
+        }}
+      />
 
       {/* Sản phẩm liên quan */}
       {product.relatedProducts.length > 0 && (

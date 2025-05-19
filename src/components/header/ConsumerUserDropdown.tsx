@@ -4,11 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
-  UserIcon, 
-  ChevronDownIcon,
-  BellIcon,
-  ChatIcon,
-  UserCircleIcon
+  UserCircleIcon,
+  ChatIcon
 } from "@/icons";
 
 export default function ConsumerUserDropdown() {
@@ -71,7 +68,9 @@ export default function ConsumerUserDropdown() {
             {user?.email}
           </p>
         </div>
-        <ChevronDownIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
       {isOpen && (
@@ -87,14 +86,6 @@ export default function ConsumerUserDropdown() {
           
           <div className="py-1">
             <Link
-              href="/profile"
-              className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <UserIcon className="w-4 h-4 mr-3 text-gray-500 dark:text-gray-400" />
-              Hồ sơ của tôi
-            </Link>
-            
-            <Link
               href="/orders"
               className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
@@ -103,19 +94,11 @@ export default function ConsumerUserDropdown() {
             </Link>
             
             <Link
-              href="/wishlist"
-              className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <BellIcon className="w-4 h-4 mr-3 text-gray-500 dark:text-gray-400" />
-              Danh sách yêu thích
-            </Link>
-            
-            <Link
-              href="/settings"
+              href="/messages"
               className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <ChatIcon className="w-4 h-4 mr-3 text-gray-500 dark:text-gray-400" />
-              Cài đặt tài khoản
+              Tin nhắn của tôi
             </Link>
           </div>
           

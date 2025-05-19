@@ -16,6 +16,7 @@ import {
   PieChartIcon,
   UserCircleIcon,
   SupportIcon,
+  ChatIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
 
@@ -78,10 +79,16 @@ const farmerNavItems: NavItem[] = [
     path: "/farmer/market-analysis",
   },
   {
+    icon: <ChatIcon />,
+    name: "Nhắn tin với người dùng",
+    path: "/farmer/customer-interaction",
+  },
+  {
     icon: <UserCircleIcon />,
     name: "Quản lý thông tin cá nhân",
     path: "/farmer/profile",
   },
+
 ];
 
 // Menu cho transporter
