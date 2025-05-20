@@ -83,7 +83,7 @@ export default function ChatButton() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-[9999]">
       {isOpen && (
         <div className="fixed top-0 right-0 w-full md:w-[500px] h-screen bg-white dark:bg-gray-800 shadow-2xl border-l border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
