@@ -5,10 +5,10 @@ import Image from "next/image";
 export default function AboutTeam() {
   const team = [
     {
-      name: "Lò Tiến Anh",
-      role: "Giám đốc điều hành",
-      image: "/images/const/mys.jpg",
-      description: "Sinh viên trường Đại học Công Nghệ Đông Á",
+      name: "Nguyễn Văn Phác",
+      role: "Giảng viên hướng dẫn",
+      image: "https://seabird.edu.vn/wp-content/uploads/2024/11/2021_04_04______436d26ccc8962eef64389f22eba20903.png",
+      description: "Học viện kĩ thuật mật mã",
       social: {
         linkedin: "#",
         twitter: "#",
@@ -16,10 +16,10 @@ export default function AboutTeam() {
       },
     },
     {
-      name: "Trần Thị Bích",
+      name: "Đỗ Quang Sang",
       role: "Trưởng phòng Kỹ thuật",
-      image: "/images/const/mys.jpg",
-      description: "Sinh viên trường Đại học Công Nghệ Đông Á",
+      image: "https://seabird.edu.vn/wp-content/uploads/2024/11/2021_04_04______436d26ccc8962eef64389f22eba20903.png",
+      description: "Học viện kĩ thuật mật mã",
       social: {
         linkedin: "#",
         twitter: "#",
@@ -27,10 +27,10 @@ export default function AboutTeam() {
       },
     },
     {
-      name: "Lê Văn Cường",
+      name: "Nguyễn Trọng Anh",
       role: "Trưởng phòng Kinh doanh",
-      image: "/images/const/mys.jpg",
-      description: "Sinh viên trường Đại học Công Nghệ Đông Á",
+      image: "https://seabird.edu.vn/wp-content/uploads/2024/11/2021_04_04______436d26ccc8962eef64389f22eba20903.png",
+      description: "Học viện kĩ thuật mật mã",
       social: {
         linkedin: "#",
         twitter: "#",
@@ -38,10 +38,10 @@ export default function AboutTeam() {
       },
     },
     {
-      name: "Phạm Thị Dung",
+      name: "Lưu Thế Giáp",
       role: "Trưởng phòng Hỗ trợ nông dân",
-      image: "/images/const/mys.jpg",
-      description: "Sinh viên trường Đại học Công Nghệ Đông Á",
+      image: "https://seabird.edu.vn/wp-content/uploads/2024/11/2021_04_04______436d26ccc8962eef64389f22eba20903.png",
+      description: "Học viện kĩ thuật mật mã",
       social: {
         linkedin: "#",
         twitter: "#",

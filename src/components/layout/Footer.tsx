@@ -127,12 +127,12 @@ export default function Footer() {
                 </li>
                 <li>
                   <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
-                    <strong>Email:</strong> tienanhtch@gmail.com
+                    <strong>Email:</strong> luuthegiap2004dz@gmail.com
                   </p>
                 </li>
                 <li>
                   <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
-                    <strong>Hotline:</strong> 0355372733
+                    <strong>Hotline:</strong> 0392285116
                   </p>
                 </li>
               </ul>
